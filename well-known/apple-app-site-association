@@ -1,0 +1,21 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["TEAMID.com.freshfishdigital.opah"],
+        "components": [
+          {
+            "/": "/opah/join",
+            "?": { "event": "?*" },
+            "comment": "Opah join event deep link"
+          },
+          {
+            "/": "/opah/join/*",
+            "comment": "Opah join event deep link (trailing slash / sub-paths)"
+          }
+        ]
+      }
+    ]
+  }
+}

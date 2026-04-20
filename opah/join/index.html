@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Entrar no evento • Opah</title>
+    <meta name="description" content="Abra o convite do seu evento no app Opah." />
+    <meta name="robots" content="noindex,nofollow" />
+    <style>
+      :root {
+        --brand: #FFB74D;
+        --bg: #FFFFFF;
+        --fg: #212121;
+        --muted: #616161;
+        --card: #F5F5F5;
+        --border: #E0E0E0;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+      }
+      .wrap {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 32px 20px 48px;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      header { text-align: center; }
+      header h1 { margin: 8px 0 4px; font-size: 32px; }
+      header p { margin: 0; color: var(--muted); }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+      }
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #fff;
+        color: var(--fg);
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .btn + .btn { margin-top: 10px; }
+      .btn.primary {
+        background: var(--brand);
+        color: #000;
+        border-color: var(--brand);
+      }
+      .hidden { display: none !important; }
+      .tiny {
+        margin-top: 16px;
+        color: var(--muted);
+        font-size: 13px;
+        text-align: center;
+      }
+      code {
+        background: #EEE;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>Opah</h1>
+        <p>Você foi convidado para um evento.</p>
+      </header>
+
+      <div class="card">
+        <button id="open-app" class="btn primary">Abrir no app Opah</button>
+        <a id="ios-store" class="btn" href="#" target="_blank" rel="noopener">
+          Baixar no iPhone (App Store)
+        </a>
+        <a id="android-store" class="btn" href="#" target="_blank" rel="noopener">
+          Baixar no Android (Google Play)
+        </a>
+        <p id="event-info" class="tiny"></p>
+      </div>
+
+      <p class="tiny">
+        Seu evento fica salvo. Ao entrar no app, você será adicionado
+        automaticamente.
+      </p>
+    </div>
+
+    <script>
+      // ------------------------------------------------------------------
+      // Read event id from the URL so the app (or the user, manually) can
+      // use it after install.
+      // ------------------------------------------------------------------
+      var params = new URLSearchParams(location.search);
+      var eventId = params.get('event') || params.get('id') || '';
+
+      var APP_STORE_URL = 'https://apps.apple.com/app/idYOUR_APPSTORE_ID';
+      var PLAY_STORE_URL =
+        'https://play.google.com/store/apps/details?id=com.freshfishdigital.opah';
+
+      document.getElementById('ios-store').href = APP_STORE_URL;
+      document.getElementById('android-store').href = PLAY_STORE_URL;
+
+      if (eventId) {
+        document.getElementById('event-info').innerHTML =
+          'ID do evento: <code>' + escapeHtml(eventId) + '</code>';
+      }
+
+      // Hide the wrong store link per platform.
+      var ua = navigator.userAgent || '';
+      var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+      var isAndroid = /Android/.test(ua);
+      if (isIOS) document.getElementById('android-store').classList.add('hidden');
+      if (isAndroid) document.getElementById('ios-store').classList.add('hidden');
+
+      // ------------------------------------------------------------------
+      // "Open in Opah" button.
+      //
+      // If Universal Links / App Links are set up, visiting this very URL
+      // from Safari/Chrome will already hand off to the native app. This
+      // button is a manual retry (users may tap "stay in Safari" the first
+      // time). It just reloads the same URL, which the OS will handoff
+      // when the app is installed.
+      // ------------------------------------------------------------------
+      document
+        .getElementById('open-app')
+        .addEventListener('click', function () {
+          window.location.href = window.location.href;
+        });
+
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+    </script>
+  </body>
+</html>

@@ -3,13 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Abrindo no Opah…</title>
-    <meta name="description" content="Abra o convite do seu evento no app Opah." />
+    <title>Entrar no evento · Opah</title>
+    <meta
+      name="description"
+      content="Baixe o Opah para entrar no seu evento."
+    />
     <meta name="robots" content="noindex,nofollow" />
     <!--
       Shows Safari's "Smart App Banner" when the app is installed. Replace
       YOUR_APPSTORE_ID once Opah has an App Store listing (see
-      web_landing/README.md).
+      web_landing/README.md). Tapping the banner is the ONLY reliable way
+      to re-hand off to the app from inside Safari — so keep this meta tag.
     -->
     <meta
       name="apple-itunes-app"
@@ -39,47 +43,49 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 32px 24px 48px;
-        gap: 18px;
+        padding: 40px 24px 56px;
+        gap: 14px;
         text-align: center;
       }
-      h1 { margin: 0; font-size: 28px; }
-      p.subtitle { margin: 0; color: var(--muted); font-size: 15px; }
-
-      .spinner {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        border: 3px solid var(--border);
-        border-top-color: var(--brand);
-        animation: spin 0.9s linear infinite;
+      .logo {
+        width: 72px;
+        height: 72px;
+        border-radius: 18px;
+        background: var(--brand);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 28px;
+        color: #000;
+        margin-bottom: 8px;
       }
-      @keyframes spin { to { transform: rotate(360deg); } }
+      h1 { margin: 0; font-size: 26px; }
+      p.subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        max-width: 320px;
+      }
 
-      .install {
-        margin-top: 28px;
+      .cta {
+        margin-top: 20px;
         display: flex;
         flex-direction: column;
-        align-items: stretch;
         gap: 10px;
         width: 100%;
         max-width: 320px;
-      }
-      .install p {
-        margin: 0 0 4px;
-        color: var(--muted);
-        font-size: 13px;
       }
       .btn {
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 12px 16px;
-        border-radius: 10px;
+        padding: 14px 16px;
+        border-radius: 12px;
         border: 1px solid var(--border);
         background: #fff;
         color: var(--fg);
-        font-size: 15px;
+        font-size: 16px;
         font-weight: 600;
         text-decoration: none;
       }
@@ -92,7 +98,7 @@
       .hidden { display: none !important; }
 
       .event-tag {
-        margin-top: 4px;
+        margin-top: 18px;
         font-size: 12px;
         color: var(--muted);
       }
@@ -102,28 +108,33 @@
         border-radius: 4px;
         font-size: 11px;
       }
+
+      .footer {
+        margin-top: 24px;
+        font-size: 12px;
+        color: var(--muted);
+      }
     </style>
   </head>
   <body>
     <main>
-      <div class="spinner" aria-hidden="true"></div>
-      <h1>Abrindo no Opah…</h1>
-      <p class="subtitle">Seu evento está quase lá.</p>
+      <div class="logo" aria-hidden="true">O</div>
+      <h1>Entrar no evento</h1>
+      <p class="subtitle">
+        Baixe o app Opah para ver o convite e participar.
+      </p>
 
-      <div class="install">
-        <p>Ainda não tem o app?</p>
+      <div class="cta">
         <a id="ios-store" class="btn primary" href="#" target="_blank" rel="noopener">
           Baixar no iPhone
         </a>
         <a id="android-store" class="btn primary" href="#" target="_blank" rel="noopener">
           Baixar no Android
         </a>
-        <button id="open-app" class="btn" type="button">
-          Tentar abrir o app novamente
-        </button>
       </div>
 
       <p id="event-info" class="event-tag"></p>
+      <p class="footer">Já tem o app? Abra o Opah pelo ícone na tela inicial.</p>
     </main>
 
     <script>
@@ -149,14 +160,6 @@
         document.getElementById('event-info').innerHTML =
           'ID do evento: <code>' + escapeHtml(eventId) + '</code>';
       }
-
-      // Manual retry: re-navigate to this URL so Safari re-checks the
-      // Universal Link and hands off to the app if installed.
-      document
-        .getElementById('open-app')
-        .addEventListener('click', function () {
-          window.location.href = window.location.href;
-        });
 
       function escapeHtml(s) {
         return String(s)

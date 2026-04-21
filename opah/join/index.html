@@ -3,9 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Entrar no evento • Opah</title>
+    <title>Abrindo no Opah…</title>
     <meta name="description" content="Abra o convite do seu evento no app Opah." />
     <meta name="robots" content="noindex,nofollow" />
+    <!--
+      Show Safari's Smart App Banner when the app is installed. The numeric
+      id must be set once Opah has an App Store listing (see README).
+    -->
+    <meta
+      name="apple-itunes-app"
+      content="app-id=YOUR_APPSTORE_ID, app-argument=event"
+    />
     <style>
       :root {
         --brand: #FFB74D;
@@ -77,10 +85,46 @@
         border-radius: 4px;
         font-size: 12px;
       }
+
+      /* -------------------------------------------------------------------
+         "Opening in app" state — shown for the first ~2.5s on mobile while
+         iOS may be transferring the URL to the installed Opah app via
+         Universal Links. If the app was installed, Safari is backgrounded
+         in a fraction of a second and the user never really sees the rest
+         of the page. If it wasn't installed, we reveal the full landing
+         page (see `showFallback()` in the script below).
+         ------------------------------------------------------------------- */
+      .opening {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        padding: 64px 24px;
+        color: var(--muted);
+        text-align: center;
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 3px solid var(--border);
+        border-top-color: var(--brand);
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
     </style>
   </head>
   <body>
-    <div class="wrap">
+    <!-- Step 1: minimal "opening" state so the (possibly unwanted) Safari tab
+         shows a branded, intentional message instead of a marketing page.  -->
+    <div id="opening" class="opening">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Abrindo no Opah…</p>
+    </div>
+
+    <!-- Step 2: full fallback page when the app is not installed. -->
+    <div id="fallback" class="wrap hidden">
       <header>
         <h1>Opah</h1>
         <p>Você foi convidado para um evento.</p>
@@ -104,10 +148,6 @@
     </div>
 
     <script>
-      // ------------------------------------------------------------------
-      // Read event id from the URL so the app (or the user, manually) can
-      // use it after install.
-      // ------------------------------------------------------------------
       var params = new URLSearchParams(location.search);
       var eventId = params.get('event') || params.get('id') || '';
 
@@ -123,25 +163,43 @@
           'ID do evento: <code>' + escapeHtml(eventId) + '</code>';
       }
 
-      // Hide the wrong store link per platform.
       var ua = navigator.userAgent || '';
       var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
       var isAndroid = /Android/.test(ua);
+      var isMobile = isIOS || isAndroid;
+
       if (isIOS) document.getElementById('android-store').classList.add('hidden');
       if (isAndroid) document.getElementById('ios-store').classList.add('hidden');
 
-      // ------------------------------------------------------------------
-      // "Open in Opah" button.
-      //
-      // If Universal Links / App Links are set up, visiting this very URL
-      // from Safari/Chrome will already hand off to the native app. This
-      // button is a manual retry (users may tap "stay in Safari" the first
-      // time). It just reloads the same URL, which the OS will handoff
-      // when the app is installed.
-      // ------------------------------------------------------------------
+      function showFallback() {
+        document.getElementById('opening').classList.add('hidden');
+        document.getElementById('fallback').classList.remove('hidden');
+      }
+
+      // On mobile: stay on the "opening" state for ~2.5s. If the app was
+      // installed, the Universal Link / App Link will move focus to the app
+      // within that window and the user never sees the fallback. On desktop
+      // (or after the timeout) show the full page immediately.
+      var _fallbackTimer = null;
+      if (isMobile) {
+        _fallbackTimer = setTimeout(showFallback, 2500);
+        // If the tab becomes hidden (UL took the user into the app) cancel
+        // the countdown so the fallback doesn't appear in the background.
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'hidden' && _fallbackTimer) {
+            clearTimeout(_fallbackTimer);
+            _fallbackTimer = null;
+          }
+        });
+      } else {
+        showFallback();
+      }
+
       document
         .getElementById('open-app')
         .addEventListener('click', function () {
+          // Re-navigate to the same URL to trigger Universal Link handoff
+          // again from Safari.
           window.location.href = window.location.href;
         });
 

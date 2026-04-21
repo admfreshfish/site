@@ -7,8 +7,9 @@
     <meta name="description" content="Abra o convite do seu evento no app Opah." />
     <meta name="robots" content="noindex,nofollow" />
     <!--
-      Show Safari's Smart App Banner when the app is installed. The numeric
-      id must be set once Opah has an App Store listing (see README).
+      Shows Safari's "Smart App Banner" when the app is installed. Replace
+      YOUR_APPSTORE_ID once Opah has an App Store listing (see
+      web_landing/README.md).
     -->
     <meta
       name="apple-itunes-app"
@@ -17,93 +18,34 @@
     <style>
       :root {
         --brand: #FFB74D;
+        --brand-dark: #E6A23C;
         --bg: #FFFFFF;
         --fg: #212121;
         --muted: #616161;
-        --card: #F5F5F5;
         --border: #E0E0E0;
       }
       * { box-sizing: border-box; }
       html, body {
         margin: 0;
         padding: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          "Helvetica Neue", Arial, sans-serif;
         background: var(--bg);
         color: var(--fg);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
       }
-      .wrap {
-        max-width: 480px;
-        margin: 0 auto;
-        padding: 32px 20px 48px;
+      main {
         min-height: 100dvh;
         display: flex;
         flex-direction: column;
-        gap: 20px;
-      }
-      header { text-align: center; }
-      header h1 { margin: 8px 0 4px; font-size: 32px; }
-      header p { margin: 0; color: var(--muted); }
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 20px;
-      }
-      .btn {
-        display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        width: 100%;
-        padding: 14px 16px;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        background: #fff;
-        color: var(--fg);
-        font-size: 16px;
-        font-weight: 600;
-        text-decoration: none;
-        cursor: pointer;
-      }
-      .btn + .btn { margin-top: 10px; }
-      .btn.primary {
-        background: var(--brand);
-        color: #000;
-        border-color: var(--brand);
-      }
-      .hidden { display: none !important; }
-      .tiny {
-        margin-top: 16px;
-        color: var(--muted);
-        font-size: 13px;
+        padding: 32px 24px 48px;
+        gap: 18px;
         text-align: center;
       }
-      code {
-        background: #EEE;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 12px;
-      }
+      h1 { margin: 0; font-size: 28px; }
+      p.subtitle { margin: 0; color: var(--muted); font-size: 15px; }
 
-      /* -------------------------------------------------------------------
-         "Opening in app" state — shown for the first ~2.5s on mobile while
-         iOS may be transferring the URL to the installed Opah app via
-         Universal Links. If the app was installed, Safari is backgrounded
-         in a fraction of a second and the user never really sees the rest
-         of the page. If it wasn't installed, we reveal the full landing
-         page (see `showFallback()` in the script below).
-         ------------------------------------------------------------------- */
-      .opening {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 16px;
-        padding: 64px 24px;
-        color: var(--muted);
-        text-align: center;
-      }
       .spinner {
         width: 40px;
         height: 40px;
@@ -113,39 +55,76 @@
         animation: spin 0.9s linear infinite;
       }
       @keyframes spin { to { transform: rotate(360deg); } }
+
+      .install {
+        margin-top: 28px;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        width: 100%;
+        max-width: 320px;
+      }
+      .install p {
+        margin: 0 0 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #fff;
+        color: var(--fg);
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .btn.primary {
+        background: var(--brand);
+        color: #000;
+        border-color: var(--brand);
+      }
+      .btn.primary:active { background: var(--brand-dark); }
+      .hidden { display: none !important; }
+
+      .event-tag {
+        margin-top: 4px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .event-tag code {
+        background: #EEE;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+      }
     </style>
   </head>
   <body>
-    <!-- Step 1: minimal "opening" state so the (possibly unwanted) Safari tab
-         shows a branded, intentional message instead of a marketing page.  -->
-    <div id="opening" class="opening">
+    <main>
       <div class="spinner" aria-hidden="true"></div>
-      <p>Abrindo no Opah…</p>
-    </div>
+      <h1>Abrindo no Opah…</h1>
+      <p class="subtitle">Seu evento está quase lá.</p>
 
-    <!-- Step 2: full fallback page when the app is not installed. -->
-    <div id="fallback" class="wrap hidden">
-      <header>
-        <h1>Opah</h1>
-        <p>Você foi convidado para um evento.</p>
-      </header>
-
-      <div class="card">
-        <button id="open-app" class="btn primary">Abrir no app Opah</button>
-        <a id="ios-store" class="btn" href="#" target="_blank" rel="noopener">
-          Baixar no iPhone (App Store)
+      <div class="install">
+        <p>Ainda não tem o app?</p>
+        <a id="ios-store" class="btn primary" href="#" target="_blank" rel="noopener">
+          Baixar no iPhone
         </a>
-        <a id="android-store" class="btn" href="#" target="_blank" rel="noopener">
-          Baixar no Android (Google Play)
+        <a id="android-store" class="btn primary" href="#" target="_blank" rel="noopener">
+          Baixar no Android
         </a>
-        <p id="event-info" class="tiny"></p>
+        <button id="open-app" class="btn" type="button">
+          Tentar abrir o app novamente
+        </button>
       </div>
 
-      <p class="tiny">
-        Seu evento fica salvo. Ao entrar no app, você será adicionado
-        automaticamente.
-      </p>
-    </div>
+      <p id="event-info" class="event-tag"></p>
+    </main>
 
     <script>
       var params = new URLSearchParams(location.search);
@@ -158,48 +137,24 @@
       document.getElementById('ios-store').href = APP_STORE_URL;
       document.getElementById('android-store').href = PLAY_STORE_URL;
 
+      var ua = navigator.userAgent || '';
+      var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+      var isAndroid = /Android/.test(ua);
+
+      if (isIOS) document.getElementById('android-store').classList.add('hidden');
+      if (isAndroid) document.getElementById('ios-store').classList.add('hidden');
+      // On desktop show both store links.
+
       if (eventId) {
         document.getElementById('event-info').innerHTML =
           'ID do evento: <code>' + escapeHtml(eventId) + '</code>';
       }
 
-      var ua = navigator.userAgent || '';
-      var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-      var isAndroid = /Android/.test(ua);
-      var isMobile = isIOS || isAndroid;
-
-      if (isIOS) document.getElementById('android-store').classList.add('hidden');
-      if (isAndroid) document.getElementById('ios-store').classList.add('hidden');
-
-      function showFallback() {
-        document.getElementById('opening').classList.add('hidden');
-        document.getElementById('fallback').classList.remove('hidden');
-      }
-
-      // On mobile: stay on the "opening" state for ~2.5s. If the app was
-      // installed, the Universal Link / App Link will move focus to the app
-      // within that window and the user never sees the fallback. On desktop
-      // (or after the timeout) show the full page immediately.
-      var _fallbackTimer = null;
-      if (isMobile) {
-        _fallbackTimer = setTimeout(showFallback, 2500);
-        // If the tab becomes hidden (UL took the user into the app) cancel
-        // the countdown so the fallback doesn't appear in the background.
-        document.addEventListener('visibilitychange', function () {
-          if (document.visibilityState === 'hidden' && _fallbackTimer) {
-            clearTimeout(_fallbackTimer);
-            _fallbackTimer = null;
-          }
-        });
-      } else {
-        showFallback();
-      }
-
+      // Manual retry: re-navigate to this URL so Safari re-checks the
+      // Universal Link and hands off to the app if installed.
       document
         .getElementById('open-app')
         .addEventListener('click', function () {
-          // Re-navigate to the same URL to trigger Universal Link handoff
-          // again from Safari.
           window.location.href = window.location.href;
         });
 

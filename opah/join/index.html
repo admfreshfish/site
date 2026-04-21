@@ -125,10 +125,13 @@
       </p>
 
       <div class="cta">
-        <a id="ios-store" class="btn primary" href="#" target="_blank" rel="noopener">
+        <a id="open-app" class="btn primary hidden" href="#">
+          Abrir no app
+        </a>
+        <a id="ios-store" class="btn" href="#" target="_blank" rel="noopener">
           Baixar no iPhone
         </a>
-        <a id="android-store" class="btn primary" href="#" target="_blank" rel="noopener">
+        <a id="android-store" class="btn" href="#" target="_blank" rel="noopener">
           Baixar no Android
         </a>
       </div>
@@ -155,6 +158,17 @@
       if (isIOS) document.getElementById('android-store').classList.add('hidden');
       if (isAndroid) document.getElementById('ios-store').classList.add('hidden');
       // On desktop show both store links.
+
+      // Custom-scheme fallback: when the page is opened inside Safari/Chrome
+      // (e.g. iOS Camera also opening Safari in parallel with the Universal
+      // Link handoff), a same-domain link/reload won't re-trigger the Universal
+      // Link. The opah:// scheme DOES hand off from inside the browser, so we
+      // show an "Abrir no app" button on mobile.
+      if ((isIOS || isAndroid) && eventId) {
+        var openBtn = document.getElementById('open-app');
+        openBtn.href = 'opah://join?event=' + encodeURIComponent(eventId);
+        openBtn.classList.remove('hidden');
+      }
 
       if (eventId) {
         document.getElementById('event-info').innerHTML =

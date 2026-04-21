@@ -6,13 +6,8 @@
         "appIDs": ["56825VPKPK.com.freshfishdigital.opah"],
         "components": [
           {
-            "/": "/opah/join",
-            "?": { "event": "?*" },
-            "comment": "Opah join event deep link"
-          },
-          {
-            "/": "/opah/join/*",
-            "comment": "Opah join event deep link (trailing slash / sub-paths)"
+            "/": "/opah/join*",
+            "comment": "Opah join event deep link (covers /opah/join, /opah/join?..., /opah/join/...)"
           }
         ]
       }

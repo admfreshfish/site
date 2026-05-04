@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Política de Privacidade — Opah</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #F5F3EE; color: #1A1A1A; }
+
+/* NAV */
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 60px; background: #F5F3EE; border-bottom: 0.5px solid #ddd; position: sticky; top: 0; z-index: 100; }
+.nav-links { display: flex; gap: 32px; list-style: none; }
+.nav-links a { font-size: 12px; letter-spacing: 1.5px; color: #888; text-decoration: none; text-transform: uppercase; }
+.nav-links a:hover { color: #1A1A1A; }
+.nav-cta { background: #B01020; color: white; border: none; padding: 10px 22px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; border-radius: 24px; cursor: pointer; }
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+.hamburger span { display: block; width: 22px; height: 1.5px; background: #1A1A1A; }
+.mobile-menu { display: none; flex-direction: column; background: #F5F3EE; border-bottom: 0.5px solid #ddd; padding: 16px 24px 24px; gap: 16px; }
+.mobile-menu a { font-size: 13px; letter-spacing: 1.5px; color: #888; text-decoration: none; text-transform: uppercase; }
+.mobile-menu .nav-cta { align-self: flex-start; margin-top: 8px; }
+.mobile-menu.open { display: flex; }
+
+/* HERO */
+.hero { padding: 72px 60px 48px; border-bottom: 0.5px solid #ddd; }
+.hero-label { font-size: 11px; letter-spacing: 4px; color: #B01020; text-transform: uppercase; margin-bottom: 16px; }
+.hero-title { font-size: 48px; font-weight: 200; letter-spacing: -1px; margin-bottom: 16px; }
+.hero-meta { font-size: 13px; color: #aaa; letter-spacing: 1px; }
+
+/* LAYOUT */
+.layout { display: flex; gap: 60px; padding: 60px 60px 80px; max-width: 1100px; }
+
+/* SIDEBAR */
+.sidebar { width: 220px; flex-shrink: 0; }
+.sidebar-sticky { position: sticky; top: 90px; }
+.sidebar-title { font-size: 10px; letter-spacing: 3px; color: #aaa; text-transform: uppercase; margin-bottom: 20px; }
+.sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.sidebar-nav a { font-size: 13px; font-weight: 300; color: #888; text-decoration: none; padding: 6px 0; border-left: 2px solid transparent; padding-left: 12px; display: block; transition: all 0.15s; line-height: 1.4; }
+.sidebar-nav a:hover { color: #1A1A1A; border-left-color: #B01020; }
+
+/* CONTENT */
+.content { flex: 1; min-width: 0; }
+.section { margin-bottom: 56px; }
+.section h2 { font-size: 22px; font-weight: 400; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 0.5px solid #ddd; color: #1A1A1A; }
+.section h3 { font-size: 16px; font-weight: 500; margin: 24px 0 10px; color: #1A1A1A; }
+.section p { font-size: 15px; font-weight: 300; color: #555; line-height: 1.9; margin-bottom: 14px; }
+.section ul { margin: 8px 0 16px 0; padding-left: 0; list-style: none; }
+.section ul li { font-size: 15px; font-weight: 300; color: #555; line-height: 1.9; padding: 4px 0 4px 20px; position: relative; }
+.section ul li::before { content: '—'; position: absolute; left: 0; color: #B01020; font-weight: 400; }
+
+/* HIGHLIGHT BOX */
+.highlight { background: #EDEAE2; border-left: 3px solid #B01020; padding: 20px 24px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+.highlight p { margin-bottom: 0; font-size: 14px; }
+
+/* CONTACT BOX */
+.contact-box { background: #1A1A1A; color: white; padding: 32px; border-radius: 8px; margin-top: 24px; }
+.contact-box p { color: #aaa; margin-bottom: 6px; font-size: 14px; }
+.contact-box a { color: white; text-decoration: none; border-bottom: 0.5px solid #666; }
+.contact-box .contact-title { color: white; font-size: 16px; font-weight: 400; margin-bottom: 16px; }
+
+/* FOOTER */
+.footer { border-top: 0.5px solid #ddd; padding: 28px 60px; display: flex; justify-content: space-between; align-items: center; }
+.footer-copy { font-size: 12px; color: #bbb; }
+.footer-links { display: flex; gap: 20px; }
+.footer-links a { font-size: 12px; color: #bbb; text-decoration: none; }
+.footer-links a:hover { color: #888; }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .nav { padding: 16px 24px; }
+  .nav-links, .nav-cta { display: none; }
+  .hamburger { display: flex; }
+  .hero { padding: 48px 24px 32px; }
+  .hero-title { font-size: 32px; }
+  .layout { flex-direction: column; padding: 32px 24px 60px; gap: 0; }
+  .sidebar { width: 100%; margin-bottom: 40px; }
+  .sidebar-sticky { position: static; }
+  .sidebar-nav { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .sidebar-nav a { border-left: none; padding-left: 0; border-bottom: 1.5px solid transparent; padding-bottom: 4px; font-size: 12px; }
+  .sidebar-nav a:hover { border-bottom-color: #B01020; border-left: none; }
+  .footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <img src="ffd_logo_transparent_200X40.png" alt="Fresh Fish Digital" style="height:56px; width:auto;">
+  <ul class="nav-links">
+    <li><a href="index.html">Início</a></li>
+    <li><a href="index.html#product">Produto</a></li>
+    <li><a href="index.html#story">História</a></li>
+    <li><a href="index.html#about">Sobre</a></li>
+    <li><a href="index.html#contact">Contato</a></li>
+  </ul>
+  <button class="nav-cta">Download</button>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html" onclick="toggleMenu()">Início</a>
+  <a href="index.html#product" onclick="toggleMenu()">Produto</a>
+  <a href="index.html#story" onclick="toggleMenu()">História</a>
+  <a href="index.html#about" onclick="toggleMenu()">Sobre</a>
+  <a href="index.html#contact" onclick="toggleMenu()">Contato</a>
+  <button class="nav-cta">Download</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-label">Legal</p>
+  <h1 class="hero-title">Política de Privacidade</h1>
+  <p class="hero-meta">Última atualização: Janeiro de 2026 &nbsp;·&nbsp; Fresh Fish Digital</p>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-sticky">
+      <p class="sidebar-title">Nesta página</p>
+      <ul class="sidebar-nav">
+        <li><a href="#controlador">1. Controlador de Dados</a></li>
+        <li><a href="#dados">2. Dados que Coletamos</a></li>
+        <li><a href="#uso">3. Como Usamos</a></li>
+        <li><a href="#base-legal">4. Base Legal</a></li>
+        <li><a href="#armazenamento">5. Armazenamento e Segurança</a></li>
+        <li><a href="#retencao">6. Retenção de Dados</a></li>
+        <li><a href="#compartilhamento">7. Compartilhamento</a></li>
+        <li><a href="#direitos">8. Seus Direitos</a></li>
+        <li><a href="#cookies">9. Cookies</a></li>
+        <li><a href="#menores">10. Menores de Idade</a></li>
+        <li><a href="#transferencia">11. Transferência Internacional</a></li>
+        <li><a href="#alteracoes">12. Alterações</a></li>
+        <li><a href="#contato">13. Contato</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <div class="highlight">
+      <p>A Fresh Fish Digital valoriza a privacidade dos seus usuários e está comprometida com a transparência no tratamento de dados pessoais. Esta Política descreve como coletamos, usamos, armazenamos e protegemos suas informações, em conformidade com a <strong>Lei Geral de Proteção de Dados Pessoais (LGPD — Lei nº 13.709/2018)</strong>.</p>
+    </div>
+
+    <!-- 1 -->
+    <div class="section" id="controlador">
+      <h2>1. Controlador de Dados</h2>
+      <p>O controlador dos dados pessoais tratados pelo Opah é:</p>
+      <ul>
+        <li><strong>Fresh Fish Digital</strong></li>
+        <li>E-mail: adm@freshfishdigital.com</li>
+        <li>Site: www.freshfishdigital.com</li>
+        <li>São Paulo, Brasil</li>
+      </ul>
+    </div>
+
+    <!-- 2 -->
+    <div class="section" id="dados">
+      <h2>2. Dados que Coletamos</h2>
+      <h3>2.1 Dados fornecidos diretamente por você</h3>
+      <p>Ao se cadastrar e utilizar o Opah, podemos coletar:</p>
+      <ul>
+        <li>Nome e endereço de e-mail (para criação de conta);</li>
+        <li>Número de telefone, quando utilizado para autenticação;</li>
+        <li>Fotos, vídeos e demais conteúdos que você faz upload nos álbuns;</li>
+        <li>Informações sobre os eventos criados, como nome e data do evento.</li>
+      </ul>
+      <h3>2.2 Dados coletados automaticamente</h3>
+      <p>Ao utilizar o aplicativo, coletamos automaticamente:</p>
+      <ul>
+        <li>Dados de uso, como telas acessadas, ações realizadas e frequência de acesso;</li>
+        <li>Informações do dispositivo, como sistema operacional, modelo e identificadores únicos;</li>
+        <li>Endereço de IP e dados de conexão à internet;</li>
+        <li>Logs de erros e desempenho do aplicativo.</li>
+      </ul>
+      <h3>2.3 O que não coletamos</h3>
+      <p>O Opah <strong>não</strong> coleta dados de localização em tempo real, não acessa seus contatos, não lê suas mensagens e não rastreia sua navegação fora do aplicativo.</p>
+    </div>
+
+    <!-- 3 -->
+    <div class="section" id="uso">
+      <h2>3. Como Usamos seus Dados</h2>
+      <p>Utilizamos os dados pessoais coletados exclusivamente para as seguintes finalidades:</p>
+      <ul>
+        <li>Criar e gerenciar sua conta no Opah;</li>
+        <li>Permitir a criação de eventos e álbuns e o compartilhamento de fotos entre os participantes convidados;</li>
+        <li>Enviar notificações relacionadas ao serviço, como novos uploads em álbuns que você participa;</li>
+        <li>Melhorar a experiência do usuário e desenvolver novas funcionalidades;</li>
+        <li>Garantir a segurança do aplicativo e prevenir abusos;</li>
+        <li>Cumprir obrigações legais e regulatórias.</li>
+      </ul>
+      <div class="highlight">
+        <p>Não utilizamos seus dados para publicidade de terceiros, nem vendemos ou compartilhamos informações pessoais com anunciantes.</p>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="section" id="base-legal">
+      <h2>4. Base Legal para o Tratamento</h2>
+      <p>O tratamento de dados pessoais pelo Opah é realizado com base nas seguintes hipóteses legais previstas na LGPD:</p>
+      <ul>
+        <li><strong>Consentimento:</strong> para o envio de comunicações de marketing ou funcionalidades opcionais;</li>
+        <li><strong>Execução de contrato:</strong> para a prestação do serviço do Opah conforme os Termos de Uso aceitos;</li>
+        <li><strong>Legítimo interesse:</strong> para melhoria do serviço, segurança e prevenção de fraudes;</li>
+        <li><strong>Cumprimento de obrigação legal:</strong> quando exigido por lei ou autoridade competente.</li>
+      </ul>
+    </div>
+
+    <!-- 5 -->
+    <div class="section" id="armazenamento">
+      <h2>5. Armazenamento e Segurança</h2>
+      <p>As fotos e demais dados dos usuários são armazenados em serviços de infraestrutura em nuvem de terceiros de reconhecida reputação, como Amazon Web Services (AWS) ou Google Cloud, que adotam altos padrões de segurança e certificações internacionais.</p>
+      <p>A Fresh Fish Digital adota as seguintes medidas de segurança:</p>
+      <ul>
+        <li>Criptografia de dados em trânsito (HTTPS/TLS);</li>
+        <li>Controle de acesso restrito aos sistemas internos;</li>
+        <li>Monitoramento de segurança e logs de acesso;</li>
+        <li>Revisões periódicas das práticas de segurança.</li>
+      </ul>
+      <p>Em caso de incidente de segurança que possa gerar risco ou dano relevante aos titulares, a Fresh Fish Digital notificará a ANPD e os usuários afetados nos prazos previstos em lei.</p>
+    </div>
+
+    <!-- 6 -->
+    <div class="section" id="retencao">
+      <h2>6. Retenção de Dados</h2>
+      <p>Os dados pessoais são mantidos pelo tempo necessário para a prestação do serviço ou para o cumprimento de obrigações legais:</p>
+      <ul>
+        <li><strong>Dados de conta:</strong> mantidos enquanto a conta estiver ativa. Após o encerramento, removidos em até 90 dias, salvo obrigação legal;</li>
+        <li><strong>Fotos e conteúdo de álbuns:</strong> mantidos enquanto o evento estiver ativo. Após encerramento ou exclusão, removidos em até 30 dias;</li>
+        <li><strong>Logs de acesso:</strong> retidos por até 6 meses, conforme o Marco Civil da Internet (Lei nº 12.965/2014);</li>
+        <li><strong>Dados fiscais:</strong> retidos pelos prazos estabelecidos pela legislação tributária brasileira, quando aplicável.</li>
+      </ul>
+    </div>
+
+    <!-- 7 -->
+    <div class="section" id="compartilhamento">
+      <h2>7. Compartilhamento de Dados</h2>
+      <p>A Fresh Fish Digital não vende dados pessoais. Podemos compartilhar informações apenas nas seguintes situações:</p>
+      <ul>
+        <li><strong>Provedores de infraestrutura:</strong> empresas como AWS ou Google Cloud, que atuam como operadores sob nossas instruções;</li>
+        <li><strong>Serviços de análise:</strong> ferramentas anônimas ou pseudonimizadas de análise de uso do aplicativo;</li>
+        <li><strong>Autoridades legais:</strong> quando obrigados por lei, ordem judicial ou solicitação de autoridade pública competente;</li>
+        <li><strong>Proteção de direitos:</strong> quando necessário para proteger a segurança da Fresh Fish Digital, de seus usuários ou de terceiros.</li>
+      </ul>
+    </div>
+
+    <!-- 8 -->
+    <div class="section" id="direitos">
+      <h2>8. Seus Direitos como Titular de Dados</h2>
+      <p>Nos termos da LGPD, você tem os seguintes direitos em relação aos seus dados pessoais:</p>
+      <ul>
+        <li><strong>Confirmação e acesso:</strong> confirmar a existência de tratamento e acessar seus dados;</li>
+        <li><strong>Correção:</strong> corrigir dados incompletos, inexatos ou desatualizados;</li>
+        <li><strong>Anonimização, bloqueio ou eliminação:</strong> de dados desnecessários ou tratados em desconformidade com a LGPD;</li>
+        <li><strong>Portabilidade:</strong> receber seus dados em formato estruturado e interoperável;</li>
+        <li><strong>Eliminação:</strong> solicitar a exclusão dos dados tratados com base em consentimento;</li>
+        <li><strong>Informação sobre compartilhamento:</strong> saber com quais entidades seus dados foram compartilhados;</li>
+        <li><strong>Revogação do consentimento:</strong> retirar o consentimento a qualquer momento;</li>
+        <li><strong>Oposição:</strong> opor-se ao tratamento realizado com fundamento em hipóteses diversas do consentimento.</li>
+      </ul>
+      <div class="highlight">
+        <p>Para exercer qualquer um desses direitos, entre em contato pelo e-mail <strong>adm@freshfishdigital.com</strong>. Responderemos em até 15 dias úteis.</p>
+      </div>
+    </div>
+
+    <!-- 9 -->
+    <div class="section" id="cookies">
+      <h2>9. Cookies e Tecnologias Semelhantes</h2>
+      <p>O Opah pode utilizar cookies e tecnologias semelhantes para melhorar a experiência do usuário, manter sessões autenticadas e analisar o uso do aplicativo de forma agregada. Não utilizamos cookies para fins de publicidade comportamental.</p>
+      <p>Você pode gerenciar as preferências de cookies nas configurações do seu dispositivo ou navegador, embora isso possa impactar algumas funcionalidades do aplicativo.</p>
+    </div>
+
+    <!-- 10 -->
+    <div class="section" id="menores">
+      <h2>10. Usuários Menores de Idade</h2>
+      <p>O Opah não é direcionado a crianças menores de 13 anos. Não coletamos intencionalmente dados pessoais de menores de 13 anos. Se tomarmos conhecimento de que coletamos dados de uma criança abaixo dessa faixa etária sem o consentimento dos pais ou responsáveis legais, tomaremos medidas imediatas para remover essas informações.</p>
+      <p>Para usuários entre 13 e 18 anos, recomendamos que o uso do aplicativo seja realizado com conhecimento e orientação dos pais ou responsáveis.</p>
+    </div>
+
+    <!-- 11 -->
+    <div class="section" id="transferencia">
+      <h2>11. Transferência Internacional de Dados</h2>
+      <p>Os dados dos usuários podem ser armazenados e processados em servidores localizados fora do Brasil, nos países onde os provedores de infraestrutura em nuvem operam (como Estados Unidos e países da União Europeia). Nesses casos, garantimos que tais transferências sejam realizadas em conformidade com a LGPD, exigindo que os destinatários proporcionem nível adequado de proteção aos dados pessoais.</p>
+    </div>
+
+    <!-- 12 -->
+    <div class="section" id="alteracoes">
+      <h2>12. Alterações desta Política</h2>
+      <p>Esta Política de Privacidade pode ser atualizada periodicamente para refletir mudanças nas nossas práticas ou na legislação aplicável. Quando houver alterações relevantes, notificaremos os usuários por meio do aplicativo ou por e-mail com antecedência mínima de 15 dias. O uso continuado do Opah após a entrada em vigor das alterações implica aceitação da nova versão.</p>
+    </div>
+
+    <!-- 13 -->
+    <div class="section" id="contato">
+      <h2>13. Contato e Encarregado de Dados</h2>
+      <p>Para dúvidas, solicitações ou exercício de direitos relacionados à privacidade e proteção de dados, entre em contato com a Fresh Fish Digital:</p>
+      <div class="contact-box">
+        <p class="contact-title">Fresh Fish Digital — Encarregado de Dados (DPO)</p>
+        <p>E-mail: <a href="mailto:adm@freshfishdigital.com">adm@freshfishdigital.com</a></p>
+        <p>Site: <a href="http://www.freshfishdigital.com">www.freshfishdigital.com</a></p>
+        <p>São Paulo, Brasil</p>
+      </div>
+      <p style="margin-top: 20px;">Você também pode apresentar reclamações à <strong>Autoridade Nacional de Proteção de Dados (ANPD)</strong>, órgão responsável pela fiscalização do cumprimento da LGPD no Brasil: <a href="https://www.gov.br/anpd" target="_blank" style="color: #B01020;">www.gov.br/anpd</a>.</p>
+    </div>
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <span class="footer-copy">© 2026 Fresh Fish Digital. Todos os direitos reservados.</span>
+  <div class="footer-links">
+    <a href="privacidade.html">Privacidade</a>
+    <a href="termos.html">Termos</a>
+    <a href="mailto:adm@freshfishdigital.com">Contato</a>
+  </div>
+</footer>
+
+<script>
+function toggleMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

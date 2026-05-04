@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termos e Condições — Opah</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #F5F3EE; color: #1A1A1A; }
+
+/* NAV */
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 60px; background: #F5F3EE; border-bottom: 0.5px solid #ddd; position: sticky; top: 0; z-index: 100; }
+.nav-links { display: flex; gap: 32px; list-style: none; }
+.nav-links a { font-size: 12px; letter-spacing: 1.5px; color: #888; text-decoration: none; text-transform: uppercase; }
+.nav-links a:hover { color: #1A1A1A; }
+.nav-cta { background: #B01020; color: white; border: none; padding: 10px 22px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; border-radius: 24px; cursor: pointer; }
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+.hamburger span { display: block; width: 22px; height: 1.5px; background: #1A1A1A; }
+.mobile-menu { display: none; flex-direction: column; background: #F5F3EE; border-bottom: 0.5px solid #ddd; padding: 16px 24px 24px; gap: 16px; }
+.mobile-menu a { font-size: 13px; letter-spacing: 1.5px; color: #888; text-decoration: none; text-transform: uppercase; }
+.mobile-menu .nav-cta { align-self: flex-start; margin-top: 8px; }
+.mobile-menu.open { display: flex; }
+
+/* HERO */
+.hero { padding: 72px 60px 48px; border-bottom: 0.5px solid #ddd; }
+.hero-label { font-size: 11px; letter-spacing: 4px; color: #B01020; text-transform: uppercase; margin-bottom: 16px; }
+.hero-title { font-size: 48px; font-weight: 200; letter-spacing: -1px; margin-bottom: 16px; }
+.hero-meta { font-size: 13px; color: #aaa; letter-spacing: 1px; }
+
+/* LAYOUT */
+.layout { display: flex; gap: 60px; padding: 60px 60px 80px; max-width: 1100px; }
+
+/* SIDEBAR */
+.sidebar { width: 220px; flex-shrink: 0; }
+.sidebar-sticky { position: sticky; top: 90px; }
+.sidebar-title { font-size: 10px; letter-spacing: 3px; color: #aaa; text-transform: uppercase; margin-bottom: 20px; }
+.sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.sidebar-nav a { font-size: 13px; font-weight: 300; color: #888; text-decoration: none; padding: 6px 0; border-left: 2px solid transparent; padding-left: 12px; display: block; transition: all 0.15s; line-height: 1.4; }
+.sidebar-nav a:hover { color: #1A1A1A; border-left-color: #B01020; }
+
+/* CONTENT */
+.content { flex: 1; min-width: 0; }
+.section { margin-bottom: 56px; }
+.section h2 { font-size: 22px; font-weight: 400; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 0.5px solid #ddd; color: #1A1A1A; }
+.section h3 { font-size: 16px; font-weight: 500; margin: 24px 0 10px; color: #1A1A1A; }
+.section p { font-size: 15px; font-weight: 300; color: #555; line-height: 1.9; margin-bottom: 14px; }
+.section ul { margin: 8px 0 16px 0; padding-left: 0; list-style: none; }
+.section ul li { font-size: 15px; font-weight: 300; color: #555; line-height: 1.9; padding: 4px 0 4px 20px; position: relative; }
+.section ul li::before { content: '—'; position: absolute; left: 0; color: #B01020; font-weight: 400; }
+
+/* HIGHLIGHT BOX */
+.highlight { background: #EDEAE2; border-left: 3px solid #B01020; padding: 20px 24px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+.highlight p { margin-bottom: 0; font-size: 14px; }
+
+/* CONTACT BOX */
+.contact-box { background: #1A1A1A; color: white; padding: 32px; border-radius: 8px; margin-top: 24px; }
+.contact-box p { color: #aaa; margin-bottom: 6px; font-size: 14px; }
+.contact-box a { color: white; text-decoration: none; border-bottom: 0.5px solid #666; }
+.contact-box .contact-title { color: white; font-size: 16px; font-weight: 400; margin-bottom: 16px; }
+
+/* FOOTER */
+.footer { border-top: 0.5px solid #ddd; padding: 28px 60px; display: flex; justify-content: space-between; align-items: center; }
+.footer-copy { font-size: 12px; color: #bbb; }
+.footer-links { display: flex; gap: 20px; }
+.footer-links a { font-size: 12px; color: #bbb; text-decoration: none; }
+.footer-links a:hover { color: #888; }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .nav { padding: 16px 24px; }
+  .nav-links, .nav-cta { display: none; }
+  .hamburger { display: flex; }
+  .hero { padding: 48px 24px 32px; }
+  .hero-title { font-size: 32px; }
+  .layout { flex-direction: column; padding: 32px 24px 60px; gap: 0; }
+  .sidebar { width: 100%; margin-bottom: 40px; }
+  .sidebar-sticky { position: static; }
+  .sidebar-nav { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .sidebar-nav a { border-left: none; padding-left: 0; border-bottom: 1.5px solid transparent; padding-bottom: 4px; font-size: 12px; }
+  .sidebar-nav a:hover { border-bottom-color: #B01020; border-left: none; }
+  .footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <img src="ffd_logo_transparent_200X40.png" alt="Fresh Fish Digital" style="height:56px; width:auto;">
+  <ul class="nav-links">
+    <li><a href="index.html">Início</a></li>
+    <li><a href="index.html#product">Produto</a></li>
+    <li><a href="index.html#story">História</a></li>
+    <li><a href="index.html#about">Sobre</a></li>
+    <li><a href="index.html#contact">Contato</a></li>
+  </ul>
+  <button class="nav-cta">Download</button>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html" onclick="toggleMenu()">Início</a>
+  <a href="index.html#product" onclick="toggleMenu()">Produto</a>
+  <a href="index.html#story" onclick="toggleMenu()">História</a>
+  <a href="index.html#about" onclick="toggleMenu()">Sobre</a>
+  <a href="index.html#contact" onclick="toggleMenu()">Contato</a>
+  <button class="nav-cta">Download</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-label">Legal</p>
+  <h1 class="hero-title">Termos e Condições de Uso</h1>
+  <p class="hero-meta">Última atualização: Janeiro de 2026 &nbsp;·&nbsp; Fresh Fish Digital</p>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-sticky">
+      <p class="sidebar-title">Nesta página</p>
+      <ul class="sidebar-nav">
+        <li><a href="#aceitacao">1. Aceitação dos Termos</a></li>
+        <li><a href="#descricao">2. Descrição do Serviço</a></li>
+        <li><a href="#cadastro">3. Cadastro e Acesso</a></li>
+        <li><a href="#conteudo">4. Conteúdo do Usuário</a></li>
+        <li><a href="#armazenamento">5. Armazenamento</a></li>
+        <li><a href="#privacidade">6. Privacidade e LGPD</a></li>
+        <li><a href="#gratuidade">7. Gratuidade</a></li>
+        <li><a href="#propriedade">8. Propriedade Intelectual</a></li>
+        <li><a href="#responsabilidade">9. Limitação de Responsabilidade</a></li>
+        <li><a href="#modificacoes">10. Modificações dos Termos</a></li>
+        <li><a href="#encerramento">11. Encerramento da Conta</a></li>
+        <li><a href="#legislacao">12. Legislação e Foro</a></li>
+        <li><a href="#contato">13. Contato</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <div class="highlight">
+      <p>Ao instalar, acessar ou utilizar o Opah, você declara que leu, compreendeu e concorda em estar vinculado a estes Termos e Condições de Uso. Se você não concorda com estes Termos, não utilize o aplicativo.</p>
+    </div>
+
+    <!-- 1 -->
+    <div class="section" id="aceitacao">
+      <h2>1. Aceitação dos Termos</h2>
+      <p>Bem-vindo ao Opah, um aplicativo desenvolvido e operado pela Fresh Fish Digital. Ao instalar, acessar ou utilizar o Opah, você declara que leu, compreendeu e concorda em estar vinculado a estes Termos e Condições de Uso ("Termos").</p>
+      <p>Estes Termos constituem um acordo legal entre você ("Usuário") e a Fresh Fish Digital, com sede no Brasil, responsável pelo desenvolvimento e operação do Opah.</p>
+    </div>
+
+    <!-- 2 -->
+    <div class="section" id="descricao">
+      <h2>2. Descrição do Serviço</h2>
+      <p>O Opah é um aplicativo móvel gratuito que permite a criação de álbuns de fotos privados vinculados a eventos específicos — como casamentos, festas, viagens e reuniões. Os participantes convidados pelo organizador do evento podem fazer upload de fotos diretamente pelo aplicativo, reunindo em um só lugar as imagens capturadas por todos os presentes.</p>
+      <div class="highlight">
+        <p>O Opah <strong>não é uma rede social</strong>. Não há feed público, não há seguidores e o acesso ao conteúdo de cada álbum é restrito exclusivamente às pessoas convidadas pelo organizador do evento.</p>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="section" id="cadastro">
+      <h2>3. Cadastro e Acesso</h2>
+      <p>Para utilizar o Opah, você pode precisar criar uma conta fornecendo informações básicas. Ao se cadastrar, você declara que:</p>
+      <ul>
+        <li>As informações fornecidas são verdadeiras, precisas e atualizadas;</li>
+        <li>Tem pelo menos 13 (treze) anos de idade;</li>
+        <li>É responsável por manter a confidencialidade de suas credenciais de acesso;</li>
+        <li>Notificará imediatamente a Fresh Fish Digital em caso de uso não autorizado de sua conta.</li>
+      </ul>
+      <p>A Fresh Fish Digital reserva-se o direito de suspender ou encerrar contas que violem estes Termos.</p>
+    </div>
+
+    <!-- 4 -->
+    <div class="section" id="conteudo">
+      <h2>4. Conteúdo do Usuário</h2>
+      <h3>4.1 Responsabilidade pelo conteúdo</h3>
+      <p>Você é o único responsável por todo o conteúdo que fizer upload no Opah. Ao publicar conteúdo, você declara e garante que:</p>
+      <ul>
+        <li>Possui todos os direitos necessários sobre o conteúdo ou tem autorização dos titulares;</li>
+        <li>O conteúdo não viola direitos de terceiros, incluindo direitos de imagem, privacidade ou direitos autorais;</li>
+        <li>O conteúdo não é ilegal, ofensivo, discriminatório, difamatório ou pornográfico;</li>
+        <li>Você obteve o consentimento de todas as pessoas identificáveis nas imagens para seu compartilhamento no aplicativo.</li>
+      </ul>
+      <h3>4.2 Licença de uso</h3>
+      <p>Ao fazer upload de conteúdo no Opah, você concede à Fresh Fish Digital uma licença não exclusiva, gratuita e por prazo determinado para armazenar, processar e exibir o conteúdo exclusivamente para a prestação do serviço. A Fresh Fish Digital não utilizará seu conteúdo para fins comerciais ou de marketing sem sua autorização expressa.</p>
+      <h3>4.3 Conteúdo proibido</h3>
+      <p>É expressamente vedado publicar no Opah qualquer conteúdo que:</p>
+      <ul>
+        <li>Contenha imagens de nudez ou caráter sexual envolvendo menores de idade;</li>
+        <li>Incite violência, ódio ou discriminação por raça, gênero, religião, origem ou orientação sexual;</li>
+        <li>Viole a privacidade ou intimidade de terceiros;</li>
+        <li>Seja falso, enganoso ou constitua desinformação;</li>
+        <li>Infrinja direitos autorais ou de propriedade intelectual de terceiros;</li>
+        <li>Contenha vírus, malware ou código malicioso de qualquer natureza.</li>
+      </ul>
+    </div>
+
+    <!-- 5 -->
+    <div class="section" id="armazenamento">
+      <h2>5. Armazenamento de Dados e Fotos</h2>
+      <p>As fotos e demais conteúdos enviados pelos usuários são armazenados em serviços de infraestrutura em nuvem de terceiros de reconhecida reputação, podendo incluir provedores como Amazon Web Services (AWS) ou Google Cloud. Esses provedores operam sob suas próprias políticas de segurança e privacidade.</p>
+      <p>A Fresh Fish Digital adota medidas técnicas e organizacionais razoáveis para proteger os dados dos usuários. Em caso de incidente de segurança que afete dados pessoais, a Fresh Fish Digital notificará os usuários e as autoridades competentes nos prazos estabelecidos pela legislação aplicável.</p>
+      <p>Os álbuns e fotos ficam armazenados enquanto o evento estiver ativo. O usuário pode excluir seu conteúdo a qualquer momento. O organizador do evento pode encerrar o álbum, após o que o acesso será removido.</p>
+    </div>
+
+    <!-- 6 -->
+    <div class="section" id="privacidade">
+      <h2>6. Privacidade e Proteção de Dados</h2>
+      <p>O tratamento de dados pessoais pelo Opah é regido pela Lei Geral de Proteção de Dados Pessoais (LGPD — Lei nº 13.709/2018). Ao utilizar o aplicativo, você concorda com o tratamento de seus dados pessoais conforme descrito nestes Termos e em nossa <a href="privacidade.html" style="color: #B01020;">Política de Privacidade</a>, que é parte integrante deste documento.</p>
+      <p>Como titular de dados pessoais, você tem o direito de acessar, corrigir, eliminar e portar seus dados, além de revogar o consentimento para o tratamento. Para exercer seus direitos, entre em contato pelo e-mail: <strong>adm@freshfishdigital.com</strong></p>
+    </div>
+
+    <!-- 7 -->
+    <div class="section" id="gratuidade">
+      <h2>7. Gratuidade e Alterações Comerciais</h2>
+      <p>O Opah é atualmente oferecido gratuitamente, sem cobrança de qualquer taxa para criação de eventos, upload de fotos ou acesso aos álbuns. A Fresh Fish Digital não exibe anúncios no aplicativo.</p>
+      <div class="highlight">
+        <p>A Fresh Fish Digital reserva-se o direito de alterar o modelo de negócios no futuro. Qualquer alteração desta natureza será comunicada com antecedência razoável, e o usuário terá a opção de aceitar as novas condições ou encerrar sua conta.</p>
+      </div>
+    </div>
+
+    <!-- 8 -->
+    <div class="section" id="propriedade">
+      <h2>8. Propriedade Intelectual</h2>
+      <p>O Opah, incluindo seu nome, logotipo, interface, código-fonte, design e demais elementos, é de propriedade exclusiva da Fresh Fish Digital e está protegido pelas leis de propriedade intelectual aplicáveis. É vedada a reprodução, cópia, modificação ou distribuição de qualquer elemento do aplicativo sem autorização prévia e por escrito da Fresh Fish Digital.</p>
+      <p>O conteúdo criado pelos usuários permanece de propriedade dos respectivos autores. A Fresh Fish Digital não reivindica propriedade sobre as fotos ou materiais enviados pelos usuários.</p>
+    </div>
+
+    <!-- 9 -->
+    <div class="section" id="responsabilidade">
+      <h2>9. Limitação de Responsabilidade</h2>
+      <p>A Fresh Fish Digital enviada seus melhores esforços para garantir a disponibilidade e o bom funcionamento do Opah, mas não garante que o serviço será ininterrupto, livre de erros ou de perda de dados.</p>
+      <p>A Fresh Fish Digital não se responsabiliza por:</p>
+      <ul>
+        <li>Perdas ou danos decorrentes do uso ou incapacidade de uso do aplicativo;</li>
+        <li>Conteúdo publicado por outros usuários;</li>
+        <li>Falhas de infraestrutura de terceiros, incluindo os provedores de nuvem;</li>
+        <li>Acesso não autorizado a dados resultante de falha exclusiva do usuário em proteger suas credenciais.</li>
+      </ul>
+    </div>
+
+    <!-- 10 -->
+    <div class="section" id="modificacoes">
+      <h2>10. Modificações dos Termos</h2>
+      <p>A Fresh Fish Digital pode atualizar estes Termos a qualquer momento. Quando houver alterações relevantes, o usuário será notificado por meio do aplicativo ou por e-mail com antecedência mínima de <strong>15 (quinze) dias</strong>. O uso continuado do Opah após a entrada em vigor das alterações implica aceitação dos novos Termos.</p>
+    </div>
+
+    <!-- 11 -->
+    <div class="section" id="encerramento">
+      <h2>11. Encerramento da Conta</h2>
+      <p>Você pode encerrar sua conta a qualquer momento diretamente pelo aplicativo. Ao encerrar a conta, seus dados pessoais serão removidos conforme nossa Política de Privacidade, respeitados os prazos legais de retenção.</p>
+      <p>A Fresh Fish Digital pode suspender ou encerrar o acesso de usuários que violem estes Termos, sem necessidade de aviso prévio em casos graves.</p>
+    </div>
+
+    <!-- 12 -->
+    <div class="section" id="legislacao">
+      <h2>12. Legislação Aplicável e Foro</h2>
+      <p>Estes Termos são regidos e interpretados de acordo com as leis da República Federativa do Brasil, em especial o Código de Defesa do Consumidor (Lei nº 8.078/1990) e a Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018).</p>
+      <p>Fica eleito o foro da comarca de São Paulo, Estado de São Paulo, para dirimir quaisquer disputas decorrentes destes Termos, com renúncia expressa a qualquer outro, por mais privilegiado que seja.</p>
+    </div>
+
+    <!-- 13 -->
+    <div class="section" id="contato">
+      <h2>13. Contato</h2>
+      <p>Em caso de dúvidas, sugestões ou denúncias relacionadas a estes Termos ou ao funcionamento do Opah, entre em contato com a Fresh Fish Digital:</p>
+      <div class="contact-box">
+        <p class="contact-title">Fresh Fish Digital</p>
+        <p>E-mail: <a href="mailto:adm@freshfishdigital.com">adm@freshfishdigital.com</a></p>
+        <p>Site: <a href="http://www.freshfishdigital.com">www.freshfishdigital.com</a></p>
+        <p>São Paulo, Brasil</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <span class="footer-copy">© 2026 Fresh Fish Digital. Todos os direitos reservados.</span>
+  <div class="footer-links">
+    <a href="privacidade.html">Privacidade</a>
+    <a href="termos.html">Termos</a>
+    <a href="mailto:adm@freshfishdigital.com">Contato</a>
+  </div>
+</footer>
+
+<script>
+function toggleMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

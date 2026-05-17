@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,15 @@ body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: 
 .nav-links { display: flex; gap: 32px; list-style: none; }
 .nav-links a { font-size: 12px; letter-spacing: 1.5px; color: #888; text-decoration: none; text-transform: uppercase; }
 .nav-links a:hover { color: #1A1A1A; }
+.nav-right { display: flex; align-items: center; gap: 20px; }
 .nav-cta { background: #B01020; color: white; border: none; padding: 10px 22px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; border-radius: 24px; cursor: pointer; }
+
+/* Language switcher */
+.lang-switcher { display: flex; gap: 6px; align-items: center; }
+.lang-btn { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; border: 0.5px solid #ccc; background: transparent; color: #888; padding: 5px 10px; border-radius: 20px; cursor: pointer; transition: all 0.15s; }
+.lang-btn:hover { color: #1A1A1A; border-color: #999; }
+.lang-btn.active { border-color: #B01020; color: #B01020; background: transparent; }
+
 .hero { display: flex; align-items: center; justify-content: space-between; padding: 80px 60px; min-height: 86vh; gap: 40px; }
 .hero-left { flex: 1; max-width: 500px; }
 .eyebrow { font-size: 12px; letter-spacing: 4px; color: #B01020; text-transform: uppercase; margin-bottom: 24px; }
@@ -62,18 +70,20 @@ body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: 
 .footer-links { display: flex; gap: 20px; }
 .footer-links a { font-size: 12px; color: #bbb; text-decoration: none; }
 
-/* ── MOBILE ── */
+/* MOBILE */
 .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
 .hamburger span { display: block; width: 22px; height: 1.5px; background: #1A1A1A; }
 .mobile-menu { display: none; flex-direction: column; background: #F5F3EE; border-bottom: 0.5px solid #ddd; padding: 16px 24px 24px; gap: 16px; }
 .mobile-menu a { font-size: 13px; letter-spacing: 1.5px; color: #888; text-decoration: none; text-transform: uppercase; }
 .mobile-menu .nav-cta { align-self: flex-start; margin-top: 8px; }
 .mobile-menu.open { display: flex; }
+.mobile-lang { display: flex; gap: 8px; padding-top: 4px; }
 
 @media (max-width: 768px) {
   .nav { padding: 16px 24px; }
   .nav-links { display: none; }
   .nav-cta { display: none; }
+  .lang-switcher { display: none; }
   .hamburger { display: flex; }
 
   .hero { flex-direction: column; padding: 48px 24px 40px; min-height: auto; gap: 40px; text-align: center; }
@@ -117,43 +127,53 @@ body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: 
 
 <!-- NAV -->
 <nav class="nav">
-  <!-- Replace src below with your actual logo file path -->
   <img src="ffd_logo_transparent_200X40.png" alt="Fresh Fish Digital" style="height:56px; width:auto;">
   <ul class="nav-links">
-    <li><a href="#product">Product</a></li>
-    <li><a href="#how">How it works</a></li>
-    <li><a href="#story">Story</a></li>
-    <li><a href="#about">About</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#product" data-i18n="nav.product"></a></li>
+    <li><a href="#how" data-i18n="nav.how"></a></li>
+    <li><a href="#story" data-i18n="nav.story"></a></li>
+    <li><a href="#about" data-i18n="nav.about"></a></li>
+    <li><a href="#contact" data-i18n="nav.contact"></a></li>
   </ul>
-  <button class="nav-cta">Download</button>
+  <div class="nav-right">
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('pt')">PT</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('es')">ES</button>
+    </div>
+    <button class="nav-cta" data-i18n="nav.cta"></button>
+  </div>
   <button class="hamburger" onclick="toggleMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
 </nav>
 <div class="mobile-menu" id="mobileMenu">
-  <a href="#product" onclick="toggleMenu()">Product</a>
-  <a href="#how" onclick="toggleMenu()">How it works</a>
-  <a href="#story" onclick="toggleMenu()">Story</a>
-  <a href="#about" onclick="toggleMenu()">About</a>
-  <a href="#contact" onclick="toggleMenu()">Contact</a>
-  <button class="nav-cta">Download</button>
+  <a href="#product" onclick="toggleMenu()" data-i18n="nav.product"></a>
+  <a href="#how" onclick="toggleMenu()" data-i18n="nav.how"></a>
+  <a href="#story" onclick="toggleMenu()" data-i18n="nav.story"></a>
+  <a href="#about" onclick="toggleMenu()" data-i18n="nav.about"></a>
+  <a href="#contact" onclick="toggleMenu()" data-i18n="nav.contact"></a>
+  <div class="mobile-lang">
+    <button class="lang-btn active" onclick="setLang('pt');toggleMenu()">PT</button>
+    <button class="lang-btn" onclick="setLang('en');toggleMenu()">EN</button>
+    <button class="lang-btn" onclick="setLang('es');toggleMenu()">ES</button>
+  </div>
+  <button class="nav-cta" data-i18n="nav.cta"></button>
 </div>
 
 <!-- HERO -->
 <section class="hero">
   <div class="hero-left">
-    <p class="eyebrow">Introducing Opah</p>
-    <h1 class="hero-title">Your event,<br><em>everyone's</em><br>lens.</h1>
-    <p class="hero-desc">Every event has a thousand angles. Opah brings them all together — captured by the people who shared it with you.</p>
+    <p class="eyebrow" data-i18n="hero.eyebrow"></p>
+    <h1 class="hero-title" data-i18n-html="hero.title"></h1>
+    <p class="hero-desc" data-i18n="hero.desc"></p>
     <div class="hero-actions">
-      <button class="btn-dark">App Store</button>
-      <span class="btn-ghost">Learn more</span>
+      <button class="btn-dark" data-i18n="hero.cta"></button>
+      <span class="btn-ghost" data-i18n="hero.learn"></span>
     </div>
   </div>
   <div class="hero-right">
     <div class="phone">
       <div class="phone-notch"></div>
       <div class="phone-inner">
-        <!-- Opah fish-camera SVG -->
         <svg width="130" height="84" viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <radialGradient id="pb" cx="40%" cy="38%" r="60%"><stop offset="0%" stop-color="#FF6677"/><stop offset="100%" stop-color="#B01020"/></radialGradient>
@@ -178,7 +198,7 @@ body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: 
           <circle cx="149" cy="64" r="4" fill="white" opacity="0.70"/>
         </svg>
         <p class="phone-name">opah</p>
-        <p class="phone-tag">Your event, everyone's lens.</p>
+        <p class="phone-tag" data-i18n="hero.phone_tag"></p>
       </div>
     </div>
   </div>
@@ -188,39 +208,39 @@ body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: 
 
 <!-- PRODUCT -->
 <section class="section" id="product">
-  <p class="sec-label">Product</p>
-  <h2 class="sec-title">Not a social network. A shared album for people who were there.</h2>
-  <p class="sec-desc">The best photos from your event are on your guests' phones. Opah brings them all to one place, privately.</p>
+  <p class="sec-label" data-i18n="nav.product"></p>
+  <h2 class="sec-title" data-i18n="product.title"></h2>
+  <p class="sec-desc" data-i18n="product.desc"></p>
   <div class="grid">
     <div class="card">
       <svg class="card-icon" viewBox="0 0 32 32" fill="none"><rect x="3" y="9" width="26" height="18" rx="4" stroke="#B01020" stroke-width="1.5"/><circle cx="16" cy="18" r="5" stroke="#B01020" stroke-width="1.5"/><rect x="11" y="5" width="10" height="6" rx="2" stroke="#B01020" stroke-width="1.5"/></svg>
-      <p class="card-title">Event albums</p>
-      <p class="card-text">Create a private album for any event and invite everyone who was there.</p>
+      <p class="card-title" data-i18n="product.f1.title"></p>
+      <p class="card-text" data-i18n="product.f1.text"></p>
     </div>
     <div class="card">
       <svg class="card-icon" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="11" stroke="#B01020" stroke-width="1.5"/><path d="M10 16h12M16 10v12" stroke="#B01020" stroke-width="1.5" stroke-linecap="round"/></svg>
-      <p class="card-title">Instant sharing</p>
-      <p class="card-text">No more WhatsApp chains, Google Drive links or AirDrop juggling.</p>
+      <p class="card-title" data-i18n="product.f2.title"></p>
+      <p class="card-text" data-i18n="product.f2.text"></p>
     </div>
     <div class="card">
       <svg class="card-icon" viewBox="0 0 32 32" fill="none"><rect x="3" y="3" width="11" height="11" rx="2" stroke="#B01020" stroke-width="1.5"/><rect x="18" y="3" width="11" height="11" rx="2" stroke="#B01020" stroke-width="1.5"/><rect x="3" y="18" width="11" height="11" rx="2" stroke="#B01020" stroke-width="1.5"/><rect x="18" y="18" width="11" height="11" rx="2" stroke="#B01020" stroke-width="1.5"/></svg>
-      <p class="card-title">All angles, one place</p>
-      <p class="card-text">See the event through every guest's eyes. Candid, unposed, real.</p>
+      <p class="card-title" data-i18n="product.f3.title"></p>
+      <p class="card-text" data-i18n="product.f3.text"></p>
     </div>
     <div class="card">
       <svg class="card-icon" viewBox="0 0 32 32" fill="none"><rect x="4" y="6" width="24" height="20" rx="3" stroke="#B01020" stroke-width="1.5"/><path d="M4 12h24" stroke="#B01020" stroke-width="1.5"/><circle cx="10" cy="9" r="1.5" fill="#B01020"/></svg>
-      <p class="card-title">Private by design</p>
-      <p class="card-text">Only accessible to people you invite. No public feeds, no algorithms.</p>
+      <p class="card-title" data-i18n="product.f4.title"></p>
+      <p class="card-text" data-i18n="product.f4.text"></p>
     </div>
     <div class="card">
       <svg class="card-icon" viewBox="0 0 32 32" fill="none"><path d="M16 4l3 6.5 7 1-5 4.8 1.5 7L16 20l-6.5 3.2 1.5-7L6 11.5l7-1z" stroke="#B01020" stroke-width="1.5" stroke-linejoin="round"/></svg>
-      <p class="card-title">Real moments</p>
-      <p class="card-text">You're smiling, not posing. Photos taken by people who love you are always the best.</p>
+      <p class="card-title" data-i18n="product.f5.title"></p>
+      <p class="card-text" data-i18n="product.f5.text"></p>
     </div>
     <div class="card">
       <svg class="card-icon" viewBox="0 0 32 32" fill="none"><path d="M9 26V18M16 26V12M23 26V6" stroke="#B01020" stroke-width="1.5" stroke-linecap="round"/></svg>
-      <p class="card-title">Download everything</p>
-      <p class="card-text">Download the full album in full resolution. Keep it forever.</p>
+      <p class="card-title" data-i18n="product.f6.title"></p>
+      <p class="card-text" data-i18n="product.f6.text"></p>
     </div>
   </div>
 </section>
@@ -229,13 +249,13 @@ body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: 
 
 <!-- HOW IT WORKS -->
 <section class="section" id="how">
-  <p class="sec-label">How it works</p>
-  <h2 class="sec-title">Four steps to your perfect album.</h2>
+  <p class="sec-label" data-i18n="nav.how"></p>
+  <h2 class="sec-title" data-i18n="how.title"></h2>
   <div class="steps">
-    <div><p class="step-n">01</p><p class="step-t">Create your event</p><p class="step-d">Open Opah, name your event. Takes 30 seconds.</p></div>
-    <div><p class="step-n">02</p><p class="step-t">Invite your guests</p><p class="step-d">Share a link or QR code. Anyone with it can join.</p></div>
-    <div><p class="step-n">03</p><p class="step-t">Everyone contributes</p><p class="step-d">Guests upload photos from their phones. No account needed.</p></div>
-    <div><p class="step-n">04</p><p class="step-t">Relive it together</p><p class="step-d">Browse, react and download every moment in one place.</p></div>
+    <div><p class="step-n">01</p><p class="step-t" data-i18n="how.s1.title"></p><p class="step-d" data-i18n="how.s1.desc"></p></div>
+    <div><p class="step-n">02</p><p class="step-t" data-i18n="how.s2.title"></p><p class="step-d" data-i18n="how.s2.desc"></p></div>
+    <div><p class="step-n">03</p><p class="step-t" data-i18n="how.s3.title"></p><p class="step-d" data-i18n="how.s3.desc"></p></div>
+    <div><p class="step-n">04</p><p class="step-t" data-i18n="how.s4.title"></p><p class="step-d" data-i18n="how.s4.desc"></p></div>
   </div>
 </section>
 
@@ -243,12 +263,12 @@ body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: 
 <section class="dark" id="story">
   <div class="dark-inner">
     <div style="flex:1">
-      <p class="dark-label">Our story</p>
-      <h2 class="dark-title">Born at a<br><em>wedding.</em></h2>
+      <p class="dark-label" data-i18n="nav.story"></p>
+      <h2 class="dark-title" data-i18n-html="story.title"></h2>
     </div>
     <div style="flex:1">
-      <p class="dark-quote">The best photos from my own wedding were sent by friends on WhatsApp — because I was smiling, not posing.</p>
-      <p class="dark-text">After the wedding, photos ended up scattered across WhatsApp groups, Google Drive and AirDrop. It was chaos. Opah was born to fix that — a single private place for everyone at an event to share what they captured.</p>
+      <p class="dark-quote" data-i18n="story.quote"></p>
+      <p class="dark-text" data-i18n="story.text"></p>
     </div>
   </div>
 </section>
@@ -256,14 +276,13 @@ body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: 
 <!-- ABOUT -->
 <section class="about" id="about">
   <div style="flex:1">
-    <p class="sec-label">About</p>
+    <p class="sec-label" data-i18n="nav.about"></p>
     <h2 class="sec-title">Fresh Fish Digital</h2>
-    <p class="about-text">We're a small team with a big belief: the best software is invisible. It just works, gets out of the way, and lets real life happen.</p>
-    <p class="about-text">Fresh Fish Digital builds products named after fish. Each one solves a real problem, simply and beautifully. Opah is our first.</p>
-    <div class="badge">● São Paulo, Brazil</div>
+    <p class="about-text" data-i18n="about.p1"></p>
+    <p class="about-text" data-i18n="about.p2"></p>
+    <div class="badge">● São Paulo, Brasil</div>
   </div>
   <div style="flex:1; display:flex; justify-content:center;">
-    <!-- Opah fish-camera SVG (larger) -->
     <svg width="280" height="180" viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <radialGradient id="ab" cx="40%" cy="38%" r="60%"><stop offset="0%" stop-color="#FF6677"/><stop offset="100%" stop-color="#B01020"/></radialGradient>
@@ -291,12 +310,12 @@ body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: 
 
 <!-- DOWNLOAD -->
 <section class="dl" id="contact">
-  <p class="sec-label">Download</p>
-  <h2 class="dl-title">Ready to capture<br>every angle?</h2>
-  <p class="dl-sub">Available on iOS. Free to download.</p>
+  <p class="sec-label" data-i18n="dl.label"></p>
+  <h2 class="dl-title" data-i18n-html="dl.title"></h2>
+  <p class="dl-sub" data-i18n="dl.sub"></p>
   <button class="store">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-    <div><span class="store-s">Download on the</span><span class="store-m">App Store</span></div>
+    <div><span class="store-s" data-i18n="dl.store_s"></span><span class="store-m">App Store</span></div>
   </button>
 </section>
 
@@ -304,16 +323,193 @@ body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: 
 <footer class="footer">
   <span class="footer-copy">© 2026 Fresh Fish Digital</span>
   <div class="footer-links">
-    <a href="#">Privacy</a>
-    <a href="#">Terms</a>
-    <a href="#">Contact</a>
+    <a href="#" data-i18n="footer.privacy"></a>
+    <a href="#" data-i18n="footer.terms"></a>
+    <a href="#" data-i18n="footer.contact"></a>
   </div>
 </footer>
 
 <script>
+const i18n = {
+  pt: {
+    "nav.product": "Produto",
+    "nav.how": "Como funciona",
+    "nav.story": "Nossa história",
+    "nav.about": "Sobre",
+    "nav.contact": "Contato",
+    "nav.cta": "Baixar",
+    "hero.eyebrow": "Conheça o Opah",
+    "hero.title": "Seu evento<br>na visão de <em>todos.</em>",
+    "hero.desc": "Todo evento tem mil ângulos. O Opah reúne todos eles — capturados pelas pessoas que estiveram com você.",
+    "hero.cta": "App Store",
+    "hero.learn": "Saiba mais",
+    "hero.phone_tag": "Seu evento na visão de todos.",
+    "product.title": "Não é uma rede social. É um álbum compartilhado para quem estava lá.",
+    "product.desc": "As melhores fotos do seu evento estão no celular dos seus convidados. O Opah reúne tudo em um só lugar, de forma privada.",
+    "product.f1.title": "Álbuns por evento",
+    "product.f1.text": "Crie um álbum privado para qualquer evento e convide todos que estiveram lá.",
+    "product.f2.title": "Compartilhamento instantâneo",
+    "product.f2.text": "Sem correntes de WhatsApp, links do Google Drive ou malabarismos com AirDrop.",
+    "product.f3.title": "Todos os ângulos, em um lugar",
+    "product.f3.text": "Veja o evento pelos olhos de cada convidado. Espontâneo, sem pose, de verdade.",
+    "product.f4.title": "Privado por natureza",
+    "product.f4.text": "Acessível apenas para quem você convida. Sem feeds públicos, sem algoritmos.",
+    "product.f5.title": "Momentos reais",
+    "product.f5.text": "Você estava sorrindo, não posando. Fotos tiradas por quem te ama são sempre as melhores.",
+    "product.f6.title": "Baixe tudo",
+    "product.f6.text": "Faça o download do álbum completo em alta resolução. Guarde para sempre.",
+    "how.title": "Quatro passos para o álbum perfeito.",
+    "how.s1.title": "Crie seu evento",
+    "how.s1.desc": "Abra o Opah e dê um nome ao evento. Leva 30 segundos.",
+    "how.s2.title": "Convide seus convidados",
+    "how.s2.desc": "Compartilhe um link ou QR code. Qualquer pessoa com ele pode entrar.",
+    "how.s3.title": "Todos contribuem",
+    "how.s3.desc": "Os convidados fazem upload das fotos pelo celular. Sem precisar de conta.",
+    "how.s4.title": "Reviva juntos",
+    "how.s4.desc": "Navegue, reaja e baixe cada momento em um só lugar.",
+    "story.title": "Nasceu em um<br><em>casamento.</em>",
+    "story.quote": "As melhores fotos do meu próprio casamento foram enviadas por amigos no WhatsApp — porque eu estava sorrindo, não posando.",
+    "story.text": "Depois do casamento, as fotos foram parar em grupos de WhatsApp, Google Drive e AirDrop. Um caos. O Opah nasceu para resolver isso — um lugar privado onde todos no evento compartilham o que capturaram.",
+    "about.p1": "Somos uma equipe pequena com uma grande crença: o melhor software é invisível. Ele simplesmente funciona, sai do caminho e deixa a vida acontecer.",
+    "about.p2": "A Fresh Fish Digital cria produtos com nomes de peixes. Cada um resolve um problema real, de forma simples e bonita. O Opah é o primeiro.",
+    "dl.label": "Download",
+    "dl.title": "Pronto para capturar<br>cada ângulo?",
+    "dl.sub": "Disponível no iOS. Grátis para baixar.",
+    "dl.store_s": "Baixar na",
+    "footer.privacy": "Privacidade",
+    "footer.terms": "Termos",
+    "footer.contact": "Contato"
+  },
+  en: {
+    "nav.product": "Product",
+    "nav.how": "How it works",
+    "nav.story": "Story",
+    "nav.about": "About",
+    "nav.contact": "Contact",
+    "nav.cta": "Download",
+    "hero.eyebrow": "Introducing Opah",
+    "hero.title": "Your event,<br><em>everyone's</em><br>lens.",
+    "hero.desc": "Every event has a thousand angles. Opah brings them all together — captured by the people who shared it with you.",
+    "hero.cta": "App Store",
+    "hero.learn": "Learn more",
+    "hero.phone_tag": "Your event, everyone's lens.",
+    "product.title": "Not a social network. A shared album for people who were there.",
+    "product.desc": "The best photos from your event are on your guests' phones. Opah brings them all to one place, privately.",
+    "product.f1.title": "Event albums",
+    "product.f1.text": "Create a private album for any event and invite everyone who was there.",
+    "product.f2.title": "Instant sharing",
+    "product.f2.text": "No more WhatsApp chains, Google Drive links or AirDrop juggling.",
+    "product.f3.title": "All angles, one place",
+    "product.f3.text": "See the event through every guest's eyes. Candid, unposed, real.",
+    "product.f4.title": "Private by design",
+    "product.f4.text": "Only accessible to people you invite. No public feeds, no algorithms.",
+    "product.f5.title": "Real moments",
+    "product.f5.text": "You're smiling, not posing. Photos taken by people who love you are always the best.",
+    "product.f6.title": "Download everything",
+    "product.f6.text": "Download the full album in full resolution. Keep it forever.",
+    "how.title": "Four steps to your perfect album.",
+    "how.s1.title": "Create your event",
+    "how.s1.desc": "Open Opah, name your event. Takes 30 seconds.",
+    "how.s2.title": "Invite your guests",
+    "how.s2.desc": "Share a link or QR code. Anyone with it can join.",
+    "how.s3.title": "Everyone contributes",
+    "how.s3.desc": "Guests upload photos from their phones. No account needed.",
+    "how.s4.title": "Relive it together",
+    "how.s4.desc": "Browse, react and download every moment in one place.",
+    "story.title": "Born at a<br><em>wedding.</em>",
+    "story.quote": "The best photos from my own wedding were sent by friends on WhatsApp — because I was smiling, not posing.",
+    "story.text": "After the wedding, photos ended up scattered across WhatsApp groups, Google Drive and AirDrop. It was chaos. Opah was born to fix that — a single private place for everyone at an event to share what they captured.",
+    "about.p1": "We're a small team with a big belief: the best software is invisible. It just works, gets out of the way, and lets real life happen.",
+    "about.p2": "Fresh Fish Digital builds products named after fish. Each one solves a real problem, simply and beautifully. Opah is our first.",
+    "dl.label": "Download",
+    "dl.title": "Ready to capture<br>every angle?",
+    "dl.sub": "Available on iOS. Free to download.",
+    "dl.store_s": "Download on the",
+    "footer.privacy": "Privacy",
+    "footer.terms": "Terms",
+    "footer.contact": "Contact"
+  },
+  es: {
+    "nav.product": "Producto",
+    "nav.how": "Cómo funciona",
+    "nav.story": "Historia",
+    "nav.about": "Nosotros",
+    "nav.contact": "Contacto",
+    "nav.cta": "Descargar",
+    "hero.eyebrow": "Presentamos Opah",
+    "hero.title": "Tu evento,<br>la mirada de <em>todos.</em>",
+    "hero.desc": "Cada evento tiene mil ángulos. Opah los reúne todos — capturados por las personas que lo vivieron contigo.",
+    "hero.cta": "App Store",
+    "hero.learn": "Saber más",
+    "hero.phone_tag": "Tu evento, la mirada de todos.",
+    "product.title": "No es una red social. Es un álbum compartido para quienes estuvieron allí.",
+    "product.desc": "Las mejores fotos de tu evento están en el celular de tus invitados. Opah las reúne en un solo lugar, de forma privada.",
+    "product.f1.title": "Álbumes por evento",
+    "product.f1.text": "Crea un álbum privado para cualquier evento e invita a todos los que estuvieron.",
+    "product.f2.title": "Compartir al instante",
+    "product.f2.text": "Sin cadenas de WhatsApp, links de Google Drive ni malabares con AirDrop.",
+    "product.f3.title": "Todos los ángulos, un lugar",
+    "product.f3.text": "Mira el evento desde los ojos de cada invitado. Espontáneo, sin poses, real.",
+    "product.f4.title": "Privado por diseño",
+    "product.f4.text": "Solo accesible para quienes invitas. Sin feeds públicos, sin algoritmos.",
+    "product.f5.title": "Momentos reales",
+    "product.f5.text": "Estabas sonriendo, no posando. Las fotos de quienes te quieren siempre son las mejores.",
+    "product.f6.title": "Descarga todo",
+    "product.f6.text": "Descarga el álbum completo en alta resolución. Guárdalo para siempre.",
+    "how.title": "Cuatro pasos para tu álbum perfecto.",
+    "how.s1.title": "Crea tu evento",
+    "how.s1.desc": "Abre Opah y ponle nombre a tu evento. Tarda 30 segundos.",
+    "how.s2.title": "Invita a tus guests",
+    "how.s2.desc": "Comparte un link o código QR. Cualquiera con él puede unirse.",
+    "how.s3.title": "Todos contribuyen",
+    "how.s3.desc": "Los invitados suben fotos desde sus celulares. Sin necesidad de cuenta.",
+    "how.s4.title": "Revívanlo juntos",
+    "how.s4.desc": "Explora, reacciona y descarga cada momento en un solo lugar.",
+    "story.title": "Nació en una<br><em>boda.</em>",
+    "story.quote": "Las mejores fotos de mi propia boda me las enviaron amigos por WhatsApp — porque estaba sonriendo, no posando.",
+    "story.text": "Después de la boda, las fotos terminaron dispersas en grupos de WhatsApp, Google Drive y AirDrop. Un caos. Opah nació para resolver eso — un lugar privado donde todos en el evento comparten lo que capturaron.",
+    "about.p1": "Somos un equipo pequeño con una gran convicción: el mejor software es invisible. Simplemente funciona, se hace a un lado y deja que la vida suceda.",
+    "about.p2": "Fresh Fish Digital crea productos con nombres de peces. Cada uno resuelve un problema real, de forma simple y hermosa. Opah es el primero.",
+    "dl.label": "Descargar",
+    "dl.title": "¿Listo para capturar<br>cada ángulo?",
+    "dl.sub": "Disponible en iOS. Gratis para descargar.",
+    "dl.store_s": "Descargar en el",
+    "footer.privacy": "Privacidad",
+    "footer.terms": "Términos",
+    "footer.contact": "Contacto"
+  }
+};
+
+let currentLang = 'pt';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang === 'pt' ? 'pt-BR' : lang;
+
+  // Update all text nodes
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (i18n[lang][key] !== undefined) el.textContent = i18n[lang][key];
+  });
+
+  // Update HTML nodes (for italic/br tags)
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    if (i18n[lang][key] !== undefined) el.innerHTML = i18n[lang][key];
+  });
+
+  // Update active lang button (both desktop and mobile)
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent === lang.toUpperCase());
+  });
+}
+
 function toggleMenu() {
   document.getElementById('mobileMenu').classList.toggle('open');
 }
+
+// Init with PT-BR
+setLang('pt');
 </script>
 </body>
 </html>

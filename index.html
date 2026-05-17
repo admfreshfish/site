@@ -166,8 +166,14 @@ body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: 
     <h1 class="hero-title" data-i18n-html="hero.title"></h1>
     <p class="hero-desc" data-i18n="hero.desc"></p>
     <div class="hero-actions">
-      <button class="btn-dark" data-i18n="hero.cta"></button>
-      <span class="btn-ghost" data-i18n="hero.learn"></span>
+      <button class="store">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        <div><span class="store-s" data-i18n="dl.appstore_s"></span><span class="store-m">App Store</span></div>
+      </button>
+      <button class="store">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M3.18 23.76c.3.17.64.22.99.16l12.1-6.98-2.54-2.54-10.55 9.36zM.5 1.4A1.5 1.5 0 0 0 0 2.5v19c0 .43.17.83.5 1.1l.06.06 10.64-10.64v-.25L.56 1.34.5 1.4zM20.67 10.5l-2.88-1.66-2.85 2.85 2.85 2.85 2.9-1.67c.83-.48.83-1.9-.02-2.37zM3.18.24l12.1 6.98-2.54 2.54L2.19.4c.3-.22.68-.27.99-.16z"/></svg>
+        <div><span class="store-s" data-i18n="dl.gplay_s"></span><span class="store-m">Google Play</span></div>
+      </button>
     </div>
   </div>
   <div class="hero-right">
@@ -242,6 +248,11 @@ body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: 
       <p class="card-title" data-i18n="product.f6.title"></p>
       <p class="card-text" data-i18n="product.f6.text"></p>
     </div>
+    <div class="card">
+      <svg class="card-icon" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="14" r="7" stroke="#B01020" stroke-width="1.5"/><circle cx="16" cy="14" r="2.5" fill="#B01020"/><path d="M16 21c-5 0-10 2-10 5h20c0-3-5-5-10-5z" stroke="#B01020" stroke-width="1.5" stroke-linejoin="round"/><path d="M16 3v2M16 23v2M3 14h2M25 14h2" stroke="#B01020" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <p class="card-title" data-i18n="product.f7.title"></p>
+      <p class="card-text" data-i18n="product.f7.text"></p>
+    </div>
   </div>
 </section>
 
@@ -313,10 +324,16 @@ body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: 
   <p class="sec-label" data-i18n="dl.label"></p>
   <h2 class="dl-title" data-i18n-html="dl.title"></h2>
   <p class="dl-sub" data-i18n="dl.sub"></p>
-  <button class="store">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-    <div><span class="store-s" data-i18n="dl.store_s"></span><span class="store-m">App Store</span></div>
-  </button>
+  <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center;">
+    <button class="store">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      <div><span class="store-s" data-i18n="dl.appstore_s"></span><span class="store-m">App Store</span></div>
+    </button>
+    <button class="store">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M3.18 23.76c.3.17.64.22.99.16l12.1-6.98-2.54-2.54-10.55 9.36zM.5 1.4A1.5 1.5 0 0 0 0 2.5v19c0 .43.17.83.5 1.1l.06.06 10.64-10.64v-.25L.56 1.34.5 1.4zM20.67 10.5l-2.88-1.66-2.85 2.85 2.85 2.85 2.9-1.67c.83-.48.83-1.9-.02-2.37zM3.18.24l12.1 6.98-2.54 2.54L2.19.4c.3-.22.68-.27.99-.16z"/></svg>
+      <div><span class="store-s" data-i18n="dl.gplay_s"></span><span class="store-m">Google Play</span></div>
+    </button>
+  </div>
 </section>
 
 <!-- FOOTER -->
@@ -344,7 +361,7 @@ const i18n = {
     "hero.cta": "App Store",
     "hero.learn": "Saiba mais",
     "hero.phone_tag": "Seu evento na visão de todos.",
-    "product.title": "Não é uma rede social. É um álbum compartilhado para quem estava lá.",
+    "product.title": "Um álbum privado para quem esteve lá. Simples assim.",
     "product.desc": "As melhores fotos do seu evento estão no celular dos seus convidados. O Opah reúne tudo em um só lugar, de forma privada.",
     "product.f1.title": "Álbuns por evento",
     "product.f1.text": "Crie um álbum privado para qualquer evento e convide todos que estiveram lá.",
@@ -358,10 +375,12 @@ const i18n = {
     "product.f5.text": "Você estava sorrindo, não posando. Fotos tiradas por quem te ama são sempre as melhores.",
     "product.f6.title": "Baixe tudo",
     "product.f6.text": "Faça o download do álbum completo em alta resolução. Guarde para sempre.",
+    "product.f7.title": "Fotos do lugar certo",
+    "product.f7.text": "O geofence garante que só entrem fotos tiradas no local do evento. Sem fotos de fora do contexto.",
     "how.title": "Quatro passos para o álbum perfeito.",
     "how.s1.title": "Crie seu evento",
     "how.s1.desc": "Abra o Opah e dê um nome ao evento. Leva 30 segundos.",
-    "how.s2.title": "Convide seus convidados",
+    "how.s2.title": "Chame todo mundo",
     "how.s2.desc": "Compartilhe um link ou QR code. Qualquer pessoa com ele pode entrar.",
     "how.s3.title": "Todos contribuem",
     "how.s3.desc": "Os convidados fazem upload das fotos pelo celular. Sem precisar de conta.",
@@ -374,8 +393,9 @@ const i18n = {
     "about.p2": "A Fresh Fish Digital cria produtos com nomes de peixes. Cada um resolve um problema real, de forma simples e bonita. O Opah é o primeiro.",
     "dl.label": "Download",
     "dl.title": "Pronto para capturar<br>cada ângulo?",
-    "dl.sub": "Disponível no iOS. Grátis para baixar.",
-    "dl.store_s": "Baixar na",
+    "dl.sub": "Disponível no iOS e Android. Grátis para baixar.",
+    "dl.appstore_s": "Baixar na",
+    "dl.gplay_s": "Disponível no",
     "footer.privacy": "Privacidade",
     "footer.terms": "Termos",
     "footer.contact": "Contato"
@@ -407,6 +427,8 @@ const i18n = {
     "product.f5.text": "You're smiling, not posing. Photos taken by people who love you are always the best.",
     "product.f6.title": "Download everything",
     "product.f6.text": "Download the full album in full resolution. Keep it forever.",
+    "product.f7.title": "Photos from the right place",
+    "product.f7.text": "Geofencing ensures only photos taken at the venue make it into the album. No out-of-context shots.",
     "how.title": "Four steps to your perfect album.",
     "how.s1.title": "Create your event",
     "how.s1.desc": "Open Opah, name your event. Takes 30 seconds.",
@@ -423,8 +445,9 @@ const i18n = {
     "about.p2": "Fresh Fish Digital builds products named after fish. Each one solves a real problem, simply and beautifully. Opah is our first.",
     "dl.label": "Download",
     "dl.title": "Ready to capture<br>every angle?",
-    "dl.sub": "Available on iOS. Free to download.",
-    "dl.store_s": "Download on the",
+    "dl.sub": "Available on iOS and Android. Free to download.",
+    "dl.appstore_s": "Download on the",
+    "dl.gplay_s": "Get it on",
     "footer.privacy": "Privacy",
     "footer.terms": "Terms",
     "footer.contact": "Contact"
@@ -456,6 +479,8 @@ const i18n = {
     "product.f5.text": "Estabas sonriendo, no posando. Las fotos de quienes te quieren siempre son las mejores.",
     "product.f6.title": "Descarga todo",
     "product.f6.text": "Descarga el álbum completo en alta resolución. Guárdalo para siempre.",
+    "product.f7.title": "Fotos del lugar correcto",
+    "product.f7.text": "El geofence asegura que solo entren fotos tomadas en el lugar del evento. Sin fotos fuera de contexto.",
     "how.title": "Cuatro pasos para tu álbum perfecto.",
     "how.s1.title": "Crea tu evento",
     "how.s1.desc": "Abre Opah y ponle nombre a tu evento. Tarda 30 segundos.",
@@ -472,8 +497,9 @@ const i18n = {
     "about.p2": "Fresh Fish Digital crea productos con nombres de peces. Cada uno resuelve un problema real, de forma simple y hermosa. Opah es el primero.",
     "dl.label": "Descargar",
     "dl.title": "¿Listo para capturar<br>cada ángulo?",
-    "dl.sub": "Disponible en iOS. Gratis para descargar.",
-    "dl.store_s": "Descargar en el",
+    "dl.sub": "Disponible en iOS y Android. Gratis para descargar.",
+    "dl.appstore_s": "Descargar en el",
+    "dl.gplay_s": "Disponible en",
     "footer.privacy": "Privacidad",
     "footer.terms": "Términos",
     "footer.contact": "Contacto"

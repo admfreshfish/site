@@ -316,6 +316,7 @@
           <p class="event-title" id="event-name">Carregando…</p>
           <p class="event-meta-text" id="event-meta"></p>
 
+        <!-- Full CTA — shown before login -->
         <div class="cta" id="cta-app">
           <a id="open-app" class="btn primary hidden" href="#">
             <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -351,6 +352,13 @@
             Enviar pelo browser
             <span style="font-size:10px;font-weight:500;background:rgba(255,183,77,0.15);color:var(--brand);border-radius:6px;padding:2px 6px;letter-spacing:0.3px;">beta</span>
           </button>
+        </div>
+
+        <!-- Minimal CTA — shown after login (de-emphasized) -->
+        <div id="cta-app-mini" class="hidden" style="margin-top:12px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+          <a id="open-app-mini" class="hidden" href="#" style="font-size:12px;color:var(--muted);text-decoration:none;">↗ Abrir no app</a>
+          <a id="ios-store-mini" href="#" style="font-size:12px;color:var(--muted);text-decoration:none;">⬇ Baixar no iPhone</a>
+          <a id="android-store-mini" href="#" target="_blank" rel="noopener" style="font-size:12px;color:var(--muted);text-decoration:none;">⬇ Baixar no Android</a>
         </div>
         </div><!-- /card-body -->
       </div>
@@ -515,21 +523,32 @@
         var APP_STORE_URL  = 'itms-apps://apps.apple.com/br/app/opah/id6761278869';
         var PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.freshfishdigital.opah';
 
-        document.getElementById('ios-store').href     = APP_STORE_URL;
-        document.getElementById('android-store').href = PLAY_STORE_URL;
+        // Set hrefs on both full and mini links
+        document.getElementById('ios-store').href      = APP_STORE_URL;
+        document.getElementById('android-store').href  = PLAY_STORE_URL;
+        document.getElementById('ios-store-mini').href     = APP_STORE_URL;
+        document.getElementById('android-store-mini').href = PLAY_STORE_URL;
 
         var ua        = navigator.userAgent || '';
         var isIOS     = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
         var isAndroid = /Android/.test(ua);
-        if (isIOS)     document.getElementById('android-store').classList.add('hidden');
-        if (isAndroid) document.getElementById('ios-store').classList.add('hidden');
+        if (isIOS) {
+          document.getElementById('android-store').classList.add('hidden');
+          document.getElementById('android-store-mini').classList.add('hidden');
+        }
+        if (isAndroid) {
+          document.getElementById('ios-store').classList.add('hidden');
+          document.getElementById('ios-store-mini').classList.add('hidden');
+        }
         // Show Apple sign-in only on iOS
         if (isIOS) document.getElementById('btn-apple-signin').classList.remove('hidden');
 
         if ((isIOS || isAndroid) && eventId) {
-          var btn  = document.getElementById('open-app');
-          btn.href = 'opah://join?event=' + encodeURIComponent(eventId);
-          btn.classList.remove('hidden');
+          var deepLink = 'opah://join?event=' + encodeURIComponent(eventId);
+          document.getElementById('open-app').href = deepLink;
+          document.getElementById('open-app').classList.remove('hidden');
+          document.getElementById('open-app-mini').href = deepLink;
+          document.getElementById('open-app-mini').classList.remove('hidden');
         }
       })();
     </script>
@@ -678,6 +697,14 @@
       // ── Onboarding logic ─────────────────────────────────────────
       let _pendingAuthUser = null;  // holds user while onboarding is shown
       let _uploadUid = null, _modEnabled = false, _isTrusted = false, _canGallery = true;
+
+      /** Collapse the big app-download buttons; show the small text links instead */
+      function collapseAppCta() {
+        $('cta-app').classList.add('hidden');
+        $('cta-app-mini').classList.remove('hidden');
+        // cta-app-mini uses inline flex, toggle hidden restores it
+        $('cta-app-mini').style.display = 'flex';
+      }
 
       /** Safely set the user pill avatar — works whether placeholder still exists or not */
       function setUserPillAvatar(photoUrl) {
@@ -934,7 +961,7 @@ São Paulo, Brasil
         _uploadUid  = uid;
         _modEnabled = eventData.moderationEnabled === true;
         _isTrusted  = isManager || isCoOwner;
-        _canGallery = !(eventData.uploadRestriction === 'ownerOnly') || _isTrusted;
+        _canGallery = eventData.uploadRestriction !== 'ownersOnly' || _isTrusted;
 
         if (!_canGallery) {
           $('label-gallery').classList.add('hidden');
@@ -990,6 +1017,9 @@ São Paulo, Brasil
           showSection('section-signin');
           return;
         }
+
+        // Collapse big app-download buttons; focus on upload
+        collapseAppCta();
 
         // Update pill
         $('section-signin').classList.add('hidden');

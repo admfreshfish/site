@@ -498,8 +498,8 @@
           </div>
           <p id="upload-status" class="status-msg"></p>
 
-          <!-- Post-upload summary -->
-          <div id="upload-summary" class="hidden" style="margin-top:18px;padding:16px;background:rgba(255,183,77,0.07);border:1px solid rgba(255,183,77,0.18);border-radius:14px;text-align:center;">
+          <!-- Post-upload summary (always visible once section-upload is shown) -->
+          <div id="upload-summary" style="margin-top:18px;padding:16px;background:rgba(255,183,77,0.07);border:1px solid rgba(255,183,77,0.18);border-radius:14px;text-align:center;">
             <p style="font-size:22px;margin:0 0 4px;">📸</p>
             <p style="font-size:15px;font-weight:600;color:var(--fg);margin:0 0 4px;">
               <span id="user-photo-count">0</span> foto(s) enviada(s) por você
@@ -711,6 +711,7 @@
       // ── Onboarding logic ─────────────────────────────────────────
       let _pendingAuthUser = null;  // holds user while onboarding is shown
       let _uploadUid = null, _modEnabled = false, _isTrusted = false, _canGallery = true;
+      let _localPhotoCount = 0;
 
       /** Collapse the big app-download buttons and auto-show the upload card */
       function collapseAppCta() {
@@ -1000,6 +1001,7 @@ São Paulo, Brasil
             setStatus(`Enviando ${uploaded + 1} de ${total}…`);
             await uploadSinglePhoto(file, _uploadUid, _modEnabled, _isTrusted);
             uploaded++;
+            _localPhotoCount++;
             setProgress(uploaded / total * 100);
           } catch (err) {
             console.error('upload error', err);
@@ -1018,17 +1020,24 @@ São Paulo, Brasil
       }
 
       async function refreshUploadSummary() {
+        // Always show the summary box — use local count as instant value,
+        // then overwrite with the accurate Firestore count.
+        $('user-photo-count').textContent = _localPhotoCount;
+        $('upload-summary').classList.remove('hidden');
+
         if (!eventId || !_uploadUid) return;
         try {
           const snap = await getDocs(query(
             collection(db, 'events', eventId, 'photos'),
             where('uploadedByUserId', '==', _uploadUid)
           ));
-          const count = snap.size;
+          // Use whichever is larger (Firestore may lag slightly after upload)
+          const fsCount = snap.size;
+          const count = Math.max(fsCount, _localPhotoCount);
           $('user-photo-count').textContent = count;
-          $('upload-summary').classList.remove('hidden');
         } catch (e) {
-          console.warn('refreshUploadSummary', e);
+          // Firestore query failed (rules / index) — keep local count
+          console.warn('refreshUploadSummary Firestore error:', e.code, e.message);
         }
       }
 

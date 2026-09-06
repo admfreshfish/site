@@ -396,7 +396,7 @@
       import {
         getAuth, GoogleAuthProvider,
         signInWithPopup, signInWithRedirect, getRedirectResult,
-        onAuthStateChanged, signOut
+        onAuthStateChanged, signOut, signInAnonymously
       } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js';
       import {
         getFirestore, doc, getDoc, updateDoc, setDoc, collection,
@@ -521,7 +521,8 @@
 
       // ── Auth state ───────────────────────────────────────────────
       onAuthStateChanged(auth, async user => {
-        if (!user) {
+        // Anonymous users are only used to read event data — don't show upload UI
+        if (!user || user.isAnonymous) {
           $('section-signin').classList.remove('hidden');
           $('section-upload').classList.add('hidden');
           $('section-no-access').classList.add('hidden');
@@ -696,7 +697,12 @@
       });
 
       // ── Boot ─────────────────────────────────────────────────────
+      // Sign in anonymously so we can read the event doc (Firestore rules require auth).
+      // A real Google sign-in later will upgrade the session automatically.
       await handleRedirectResult();
+      if (!auth.currentUser) {
+        try { await signInAnonymously(auth); } catch (_) { /* ignore */ }
+      }
       await loadEvent();
     </script>
   </body>

@@ -211,6 +211,47 @@
         font-size: 12px;
       }
 
+      /* ── Onboarding (new-user profile setup) ── */
+      .avatar-picker {
+        position: relative;
+        width: 88px; height: 88px;
+        margin: 0 auto 20px;
+        cursor: pointer;
+      }
+      .avatar-picker img,
+      .avatar-picker .avatar-placeholder-lg {
+        width: 88px; height: 88px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: rgba(255,255,255,0.08);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 36px;
+        border: 2px solid var(--card-border);
+      }
+      .avatar-picker-badge {
+        position: absolute; bottom: 2px; right: 2px;
+        width: 26px; height: 26px;
+        background: var(--brand); border-radius: 50%;
+        border: 2px solid var(--ink);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px;
+      }
+      .nickname-input {
+        width: 100%;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 13px 16px;
+        color: var(--fg);
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+      }
+      .nickname-input:focus { border-color: var(--brand); }
+      .nickname-input::placeholder { color: var(--muted); }
+      .nickname-hint { font-size: 11px; color: var(--muted); margin: 6px 0 0; text-align: left; }
+
       .hidden { display: none !important; }
       .text-muted { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
       .footer {
@@ -320,6 +361,37 @@
           </button>
 
           <p id="signin-error" class="status-msg err hidden" style="margin-top:12px;"></p>
+        </div>
+
+        <!-- New user onboarding -->
+        <div id="section-onboarding" class="hidden">
+          <p style="margin:0 0 4px; font-weight:600; font-size:15px;">Criar seu perfil</p>
+          <p class="text-muted" style="margin-bottom:20px;">Como você quer aparecer para os outros?</p>
+
+          <div class="avatar-picker" id="avatar-picker">
+            <div class="avatar-placeholder-lg" id="avatar-preview-placeholder">👤</div>
+            <img id="avatar-preview-img" class="hidden" alt="Avatar" />
+            <div class="avatar-picker-badge">✏️</div>
+            <input type="file" id="avatar-file-input" accept="image/*" class="hidden" />
+          </div>
+
+          <input
+            type="text"
+            class="nickname-input"
+            id="nickname-input"
+            placeholder="Seu apelido"
+            maxlength="32"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+          />
+          <p class="nickname-hint">Letras, números, _ . - · mín. 2 caracteres</p>
+
+          <button class="btn primary" id="btn-save-profile" style="margin-top:20px;">
+            Continuar
+          </button>
+          <p id="onboarding-error" class="status-msg err hidden" style="margin-top:10px;"></p>
         </div>
 
         <!-- Logged in -->
@@ -551,119 +623,232 @@
       $('btn-signout').addEventListener('click', () => signOut(auth));
       $('btn-signout-2').addEventListener('click', () => signOut(auth));
 
-      // ── Auth state ───────────────────────────────────────────────
-      onAuthStateChanged(auth, async user => {
-        // Anonymous users are only used to read event data — don't show upload UI
-        if (!user || user.isAnonymous) {
-          $('section-signin').classList.remove('hidden');
-          $('section-upload').classList.add('hidden');
-          $('section-no-access').classList.add('hidden');
+      // ── Onboarding logic ─────────────────────────────────────────
+      let _pendingAuthUser = null;  // holds user while onboarding is shown
+      let _uploadUid = null, _modEnabled = false, _isTrusted = false, _canGallery = true;
+
+      function showSection(id) {
+        ['section-signin','section-onboarding','section-upload','section-no-access']
+          .forEach(s => $( s).classList.toggle('hidden', s !== id));
+      }
+
+      // Avatar picker
+      $('avatar-picker').addEventListener('click', () => $('avatar-file-input').click());
+      $('avatar-file-input').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        $('avatar-preview-placeholder').classList.add('hidden');
+        const img = $('avatar-preview-img');
+        img.src = url; img.classList.remove('hidden');
+      });
+
+      async function saveProfile(user) {
+        const nicknameRaw = $('nickname-input').value.trim();
+        const nicknameNorm = nicknameRaw.toLowerCase().replace(/[^a-z0-9._-]/g, '');
+        if (nicknameNorm.length < 2) {
+          $('onboarding-error').textContent = 'Apelido muito curto (mín. 2 caracteres).';
+          $('onboarding-error').classList.remove('hidden');
           return;
         }
 
-        // Show user pill
-        $('section-signin').classList.add('hidden');
-        $('user-name').textContent = user.displayName || user.email || 'Usuário';
-        if (user.photoURL) {
-          const img = document.createElement('img');
-          img.src = user.photoURL; img.alt = '';
-          $('user-pill').replaceChild(img, $('user-avatar-placeholder'));
-        }
+        // Check uniqueness
+        const btn = $('btn-save-profile');
+        btn.disabled = true;
+        btn.textContent = 'Verificando…';
+        $('onboarding-error').classList.add('hidden');
 
+        try {
+          const q = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js')
+            .then(m => m.query(
+              m.collection(db, 'users'),
+              m.where('nicknameLower', '==', nicknameNorm)
+            ));
+          // Simple uniqueness check via direct doc path instead
+          const { getDocs, query: fsQuery, where, collection: fsCol } =
+            await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+          const snap = await getDocs(fsQuery(fsCol(db,'users'), where('nicknameLower','==', nicknameNorm)));
+          const takenByOther = snap.docs.some(d => d.id !== user.uid);
+          if (takenByOther) {
+            $('onboarding-error').textContent = 'Este apelido já está em uso. Escolha outro.';
+            $('onboarding-error').classList.remove('hidden');
+            btn.disabled = false; btn.textContent = 'Continuar';
+            return;
+          }
+
+          // Upload avatar if chosen
+          btn.textContent = 'Salvando…';
+          let photoUrl = user.photoURL || null;
+          const avatarFile = $('avatar-file-input').files[0];
+          if (avatarFile) {
+            const avatarRef = storageRef(storage, `users/${user.uid}/profile/avatar.jpg`);
+            await uploadBytesResumable(avatarRef, avatarFile);
+            photoUrl = await getDownloadURL(avatarRef);
+          }
+
+          // Save to Firestore
+          await setDoc(doc(db, 'users', user.uid), {
+            nickname: nicknameNorm,
+            nicknameLower: nicknameNorm,
+            photoUrl,
+            updatedAt: serverTimestamp(),
+          }, { merge: true });
+
+          // Update pill
+          $('user-name').textContent = nicknameNorm;
+          if (photoUrl) {
+            const img = document.createElement('img');
+            img.src = photoUrl; img.alt = '';
+            $('user-pill').replaceChild(img, $('user-avatar-placeholder'));
+          }
+
+          // Proceed to upload section
+          await checkMembershipAndShowUpload(user);
+
+        } catch (err) {
+          $('onboarding-error').textContent = err.message || 'Erro ao salvar. Tente novamente.';
+          $('onboarding-error').classList.remove('hidden');
+        } finally {
+          btn.disabled = false; btn.textContent = 'Continuar';
+        }
+      }
+
+      $('btn-save-profile').addEventListener('click', () => {
+        if (_pendingAuthUser) saveProfile(_pendingAuthUser);
+      });
+
+      async function checkMembershipAndShowUpload(user) {
         if (!eventData || !eventId) {
-          $('section-upload').classList.remove('hidden');
+          showSection('section-upload');
           return;
         }
 
-        // Check/establish membership
-        const uid   = user.uid;
-        const owners  = [eventData.ownerId, ...(eventData.ownerIds || [])].filter(Boolean);
+        const uid      = user.uid;
+        const owners   = [eventData.ownerId, ...(eventData.ownerIds || [])].filter(Boolean);
         const coOwners = eventData.coOwnerIds || [];
         const invited  = eventData.invitedUserIds || [];
         const joined   = eventData.joinedUserIds  || [];
         const joinEnabled = eventData.joinEnabled === true;
 
-        const isManager  = owners.includes(uid);
-        const isCoOwner  = coOwners.includes(uid);
-        const isMember   = isManager || isCoOwner ||
-                           invited.includes(uid) || joined.includes(uid);
+        const isManager = owners.includes(uid);
+        const isCoOwner = coOwners.includes(uid);
+        const isMember  = isManager || isCoOwner ||
+                          invited.includes(uid) || joined.includes(uid);
 
         if (!isMember && !joinEnabled) {
-          $('section-no-access').classList.remove('hidden');
+          showSection('section-no-access');
           return;
         }
 
         if (!isMember && joinEnabled) {
-          // Auto-join
           try {
-            await updateDoc(doc(db, 'events', eventId), {
-              joinedUserIds: arrayUnion(uid),
-            });
-          } catch (e) {
-            console.warn('auto-join failed', e);
-          }
+            await updateDoc(doc(db, 'events', eventId), { joinedUserIds: arrayUnion(uid) });
+          } catch (e) { console.warn('auto-join failed', e); }
         }
 
-        // Upload restriction: 'ownerOnly' means gallery is owner/coOwner only
-        const restriction  = eventData.uploadRestriction || null;
-        const canGallery   = !restriction || restriction !== 'ownerOnly' ||
-                             isManager || isCoOwner;
-        const modEnabled   = eventData.moderationEnabled === true;
-        const isTrusted    = isManager || isCoOwner;
+        // Set module-level upload vars for handleFiles
+        _uploadUid  = uid;
+        _modEnabled = eventData.moderationEnabled === true;
+        _isTrusted  = isManager || isCoOwner;
+        _canGallery = !(eventData.uploadRestriction === 'ownerOnly') || _isTrusted;
 
-        $('section-upload').classList.remove('hidden');
-        if (!canGallery) {
+        if (!_canGallery) {
           $('label-gallery').classList.add('hidden');
           $('upload-restricted').classList.remove('hidden');
+          $('upload-allowed').classList.add('hidden');
         }
+        showSection('section-upload');
+      }
 
-        // ── Upload handler ────────────────────────────────────────
-        async function handleFiles(files) {
-          if (!files || files.length === 0) return;
+      // ── Upload handler ────────────────────────────────────────────
+      async function handleFiles(files) {
+        if (!files || files.length === 0) return;
+        $('progress-wrap').classList.remove('hidden');
+        $('upload-status').className = 'status-msg';
+        $('upload-status').textContent = '';
 
-          $('progress-wrap').classList.remove('hidden');
-          $('upload-status').className = 'status-msg';
-          $('upload-status').textContent = '';
-
-          let uploaded = 0;
-          const total  = files.length;
-
-          for (const file of files) {
-            try {
-              setStatus(`Enviando ${uploaded + 1} de ${total}…`);
-              await uploadSinglePhoto(file, uid, modEnabled, isTrusted);
-              uploaded++;
-              setProgress(uploaded / total * 100);
-            } catch (err) {
-              console.error('upload error', err);
-              setStatus(`Erro ao enviar: ${err.message || 'tente novamente.'}`, 'err');
-              return;
-            }
+        let uploaded = 0;
+        const total = files.length;
+        for (const file of files) {
+          try {
+            setStatus(`Enviando ${uploaded + 1} de ${total}…`);
+            await uploadSinglePhoto(file, _uploadUid, _modEnabled, _isTrusted);
+            uploaded++;
+            setProgress(uploaded / total * 100);
+          } catch (err) {
+            console.error('upload error', err);
+            setStatus(`Erro ao enviar: ${err.message || 'tente novamente.'}`, 'err');
+            return;
           }
+        }
+        setStatus(total === 1 ? 'Foto enviada! ✓' : `${uploaded} fotos enviadas! ✓`, 'ok');
+        setTimeout(() => {
+          $('progress-wrap').classList.add('hidden');
+          $('upload-status').textContent = '';
+          setProgress(0);
+        }, 3000);
+      }
 
-          setStatus(total === 1 ? 'Foto enviada! ✓' : `${uploaded} fotos enviadas! ✓`, 'ok');
-          setTimeout(() => {
-            $('progress-wrap').classList.add('hidden');
-            $('upload-status').textContent = '';
-            setProgress(0);
-          }, 3000);
+      $('input-camera').addEventListener('change', e => handleFiles(e.target.files));
+      $('input-gallery').addEventListener('change', e => handleFiles(e.target.files));
+      $('label-gallery').addEventListener('dragover', e => { e.preventDefault(); $('label-gallery').classList.add('dragover'); });
+      $('label-gallery').addEventListener('dragleave', () => $('label-gallery').classList.remove('dragover'));
+      $('label-gallery').addEventListener('drop', e => {
+        e.preventDefault();
+        $('label-gallery').classList.remove('dragover');
+        if (_canGallery) handleFiles(e.dataTransfer.files);
+      });
+
+      // ── Auth state ───────────────────────────────────────────────
+      onAuthStateChanged(auth, async user => {
+        // Anonymous users are only used to read event data — don't show upload UI
+        if (!user || user.isAnonymous) {
+          showSection('section-signin');
+          return;
         }
 
-        $('input-camera').addEventListener('change', e => handleFiles(e.target.files));
-        $('input-gallery').addEventListener('change', e => handleFiles(e.target.files));
+        // Update pill
+        $('section-signin').classList.add('hidden');
+        $('user-name').textContent = user.displayName || user.email || 'Usuário';
+        if (user.photoURL) {
+          const img = document.createElement('img');
+          img.src = user.photoURL; img.alt = '';
+          const placeholder = document.getElementById('user-avatar-placeholder');
+          if (placeholder) $('user-pill').replaceChild(img, placeholder);
+        }
 
-        // Drag & drop on gallery label
-        $('label-gallery').addEventListener('dragover', e => {
-          e.preventDefault();
-          $('label-gallery').classList.add('dragover');
-        });
-        $('label-gallery').addEventListener('dragleave', () =>
-          $('label-gallery').classList.remove('dragover'));
-        $('label-gallery').addEventListener('drop', e => {
-          e.preventDefault();
-          $('label-gallery').classList.remove('dragover');
-          if (canGallery) handleFiles(e.dataTransfer.files);
-        });
+        // Check if user has a profile (nickname) already
+        const userSnap = await getDoc(doc(db, 'users', user.uid));
+        const hasNickname = userSnap.exists() && userSnap.data().nickname;
+
+        if (!hasNickname) {
+          // Pre-fill with social name
+          $('nickname-input').value = (user.displayName || '').toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 32);
+          // Pre-fill avatar with social photo
+          if (user.photoURL) {
+            $('avatar-preview-placeholder').classList.add('hidden');
+            const img = $('avatar-preview-img');
+            img.src = user.photoURL; img.classList.remove('hidden');
+          }
+          _pendingAuthUser = user;
+          showSection('section-onboarding');
+          return;
+        }
+
+        // Existing user — update pill with stored nickname
+        const storedNickname = userSnap.data().nickname;
+        $('user-name').textContent = storedNickname;
+        const storedPhoto = userSnap.data().photoUrl;
+        if (storedPhoto) {
+          const img = document.createElement('img');
+          img.src = storedPhoto; img.alt = '';
+          const placeholder = document.getElementById('user-avatar-placeholder');
+          if (placeholder) $('user-pill').replaceChild(img, placeholder);
+        }
+
+        _pendingAuthUser = user;
+
+        await checkMembershipAndShowUpload(user);
       });
 
       // ── Single photo upload ───────────────────────────────────────

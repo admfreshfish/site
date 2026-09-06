@@ -448,7 +448,9 @@
           />
           <p class="nickname-hint">Letras, números, _ . - · mín. 2 caracteres</p>
 
-          <button class="btn primary" id="btn-save-profile" style="margin-top:20px;">
+          <p id="onboarding-photo-hint" class="text-muted" style="font-size:12px;margin:8px 0 0;text-align:center;">Toque na foto acima para escolher uma imagem 👆</p>
+
+          <button class="btn primary" id="btn-save-profile" style="margin-top:20px;" disabled>
             Continuar
           </button>
           <p id="onboarding-error" class="status-msg err hidden" style="margin-top:10px;"></p>
@@ -577,7 +579,7 @@
       } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js';
       import {
         getFirestore, doc, getDoc, getDocs, updateDoc, setDoc,
-        collection, query, where, arrayUnion, serverTimestamp
+        collection, query, where, arrayUnion, serverTimestamp, getCountFromServer
       } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js';
       import {
         getStorage, ref as storageRef,
@@ -856,12 +858,10 @@ São Paulo, Brasil
         const userSnap = await getDoc(doc(db, 'users', user.uid));
         const hasNickname = userSnap.exists() && userSnap.data().nickname;
         if (!hasNickname) {
+          // Pre-fill nickname only (no social photo — user must choose their own)
           $('nickname-input').value = (user.displayName || '').toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 32);
-          if (user.photoURL) {
-            $('avatar-preview-placeholder').classList.add('hidden');
-            const img = $('avatar-preview-img');
-            img.src = user.photoURL; img.classList.remove('hidden');
-          }
+          // Ensure button starts disabled; enabled only after a photo is picked
+          $('btn-save-profile').disabled = true;
           showSection('section-onboarding');
         } else {
           $('user-name').textContent = userSnap.data().nickname;
@@ -879,6 +879,9 @@ São Paulo, Brasil
         $('avatar-preview-placeholder').classList.add('hidden');
         const img = $('avatar-preview-img');
         img.src = url; img.classList.remove('hidden');
+        // Photo chosen — allow saving
+        $('btn-save-profile').disabled = false;
+        $('onboarding-photo-hint').classList.add('hidden');
       });
 
       async function saveProfile(user) {
@@ -907,15 +910,18 @@ São Paulo, Brasil
             return;
           }
 
-          // Upload avatar if chosen
+          // Upload avatar (required — button was disabled until a file was chosen)
           btn.textContent = 'Salvando…';
-          let photoUrl = user.photoURL || null;
           const avatarFile = $('avatar-file-input').files[0];
-          if (avatarFile) {
-            const avatarRef = storageRef(storage, `users/${user.uid}/profile/avatar.jpg`);
-            const uploadResult = await uploadBytes(avatarRef, avatarFile);
-            photoUrl = await getDownloadURL(uploadResult.ref);
+          if (!avatarFile) {
+            $('onboarding-error').textContent = 'Escolha uma foto de perfil.';
+            $('onboarding-error').classList.remove('hidden');
+            btn.disabled = false; btn.textContent = 'Continuar';
+            return;
           }
+          const avatarRef = storageRef(storage, `users/${user.uid}/profile/avatar.jpg`);
+          const uploadResult = await uploadBytes(avatarRef, avatarFile);
+          const photoUrl = await getDownloadURL(uploadResult.ref);
 
           // Save to Firestore
           await setDoc(doc(db, 'users', user.uid), {
@@ -967,10 +973,15 @@ São Paulo, Brasil
           return;
         }
 
-        if (!isMember && joinEnabled) {
+        // Formally join: write to event doc + user mirror for everyone who
+        // isn't already in joinedUserIds (covers invited users and open-join).
+        if (!joined.includes(uid)) {
           try {
-            await updateDoc(doc(db, 'events', eventId), { joinedUserIds: arrayUnion(uid) });
-          } catch (e) { console.warn('auto-join failed', e); }
+            await Promise.all([
+              updateDoc(doc(db, 'events', eventId), { joinedUserIds: arrayUnion(uid) }),
+              setDoc(doc(db, 'users', uid, 'joinedTo', eventId), { joinedAt: serverTimestamp() }),
+            ]);
+          } catch (e) { console.warn('join failed', e); }
         }
 
         // Set module-level upload vars for handleFiles
@@ -1020,20 +1031,18 @@ São Paulo, Brasil
       }
 
       async function refreshUploadSummary() {
-        // Show optimistic local count immediately, then replace with accurate Firestore total
         $('user-photo-count').textContent = _localPhotoCount || '…';
-
         if (!eventId || !_uploadUid) return;
         try {
-          const snap = await getDocs(query(
+          const q = query(
             collection(db, 'events', eventId, 'photos'),
             where('uploadedByUserId', '==', _uploadUid)
-          ));
-          // Take the max in case Firestore hasn't indexed the latest upload yet
-          $('user-photo-count').textContent = Math.max(snap.size, _localPhotoCount);
+          );
+          const result = await getCountFromServer(q);
+          const total = Math.max(result.data().count, _localPhotoCount);
+          $('user-photo-count').textContent = total;
         } catch (e) {
           console.error('refreshUploadSummary:', e.code, e.message);
-          // Fall back to local counter so at least current-session count is shown
           $('user-photo-count').textContent = _localPhotoCount;
         }
       }

@@ -627,6 +627,17 @@
       let _pendingAuthUser = null;  // holds user while onboarding is shown
       let _uploadUid = null, _modEnabled = false, _isTrusted = false, _canGallery = true;
 
+      /** Safely set the user pill avatar — works whether placeholder still exists or not */
+      function setUserPillAvatar(photoUrl) {
+        if (!photoUrl) return;
+        const pill = $('user-pill');
+        const img = document.createElement('img');
+        img.src = photoUrl; img.alt = '';
+        const existing = pill.querySelector('img, .avatar-placeholder');
+        if (existing) pill.replaceChild(img, existing);
+        else pill.insertBefore(img, pill.firstChild);
+      }
+
       function showSection(id) {
         ['section-signin','section-onboarding','section-upload','section-no-access']
           .forEach(s => $( s).classList.toggle('hidden', s !== id));
@@ -689,11 +700,7 @@
 
           // Update pill
           $('user-name').textContent = nicknameNorm;
-          if (photoUrl) {
-            const img = document.createElement('img');
-            img.src = photoUrl; img.alt = '';
-            $('user-pill').replaceChild(img, $('user-avatar-placeholder'));
-          }
+          setUserPillAvatar(photoUrl);
 
           // Proceed to upload section
           await checkMembershipAndShowUpload(user);
@@ -803,12 +810,7 @@
         // Update pill
         $('section-signin').classList.add('hidden');
         $('user-name').textContent = user.displayName || user.email || 'Usuário';
-        if (user.photoURL) {
-          const img = document.createElement('img');
-          img.src = user.photoURL; img.alt = '';
-          const placeholder = document.getElementById('user-avatar-placeholder');
-          if (placeholder) $('user-pill').replaceChild(img, placeholder);
-        }
+        setUserPillAvatar(user.photoURL);
 
         // Check if user has a profile (nickname) already
         const userSnap = await getDoc(doc(db, 'users', user.uid));
@@ -831,13 +833,7 @@
         // Existing user — update pill with stored nickname
         const storedNickname = userSnap.data().nickname;
         $('user-name').textContent = storedNickname;
-        const storedPhoto = userSnap.data().photoUrl;
-        if (storedPhoto) {
-          const img = document.createElement('img');
-          img.src = storedPhoto; img.alt = '';
-          const placeholder = document.getElementById('user-avatar-placeholder');
-          if (placeholder) $('user-pill').replaceChild(img, placeholder);
-        }
+        setUserPillAvatar(userSnap.data().photoUrl || user.photoURL);
 
         _pendingAuthUser = user;
 

@@ -1020,10 +1020,8 @@ São Paulo, Brasil
       }
 
       async function refreshUploadSummary() {
-        // Always show the summary box — use local count as instant value,
-        // then overwrite with the accurate Firestore count.
-        $('user-photo-count').textContent = _localPhotoCount;
-        $('upload-summary').classList.remove('hidden');
+        // Show optimistic local count immediately, then replace with accurate Firestore total
+        $('user-photo-count').textContent = _localPhotoCount || '…';
 
         if (!eventId || !_uploadUid) return;
         try {
@@ -1031,13 +1029,12 @@ São Paulo, Brasil
             collection(db, 'events', eventId, 'photos'),
             where('uploadedByUserId', '==', _uploadUid)
           ));
-          // Use whichever is larger (Firestore may lag slightly after upload)
-          const fsCount = snap.size;
-          const count = Math.max(fsCount, _localPhotoCount);
-          $('user-photo-count').textContent = count;
+          // Take the max in case Firestore hasn't indexed the latest upload yet
+          $('user-photo-count').textContent = Math.max(snap.size, _localPhotoCount);
         } catch (e) {
-          // Firestore query failed (rules / index) — keep local count
-          console.warn('refreshUploadSummary Firestore error:', e.code, e.message);
+          console.error('refreshUploadSummary:', e.code, e.message);
+          // Fall back to local counter so at least current-session count is shown
+          $('user-photo-count').textContent = _localPhotoCount;
         }
       }
 

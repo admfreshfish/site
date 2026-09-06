@@ -714,6 +714,48 @@
       let _pendingAuthUser = null;  // holds user while onboarding is shown
       let _uploadUid = null, _modEnabled = false, _isTrusted = false, _canGallery = true;
       let _localPhotoCount = 0;
+      let _geofenceEnabled = false, _geofenceLat = 0, _geofenceLng = 0, _geofenceRadius = 0;
+
+      // ── Geofence helpers (port of lib/utils/geofence_math.dart) ───
+      function _haversineMeters(lat1, lon1, lat2, lon2) {
+        const R = 6371000;
+        const toRad = d => d * Math.PI / 180;
+        const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+        const a = Math.sin(dLat/2)**2 +
+                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      }
+
+      /** Resolves to null (allowed) or an error string (blocked). */
+      async function _checkGeofence() {
+        if (!_geofenceEnabled) return null;
+        if (!navigator.geolocation) return 'Seu navegador não suporta geolocalização.';
+        return new Promise(resolve => {
+          navigator.geolocation.getCurrentPosition(
+            pos => {
+              const dist = _haversineMeters(
+                pos.coords.latitude, pos.coords.longitude,
+                _geofenceLat, _geofenceLng
+              );
+              if (dist <= _geofenceRadius) {
+                resolve(null);
+              } else {
+                resolve('Você está fora da área do evento. Aproxime-se para enviar fotos.');
+              }
+            },
+            err => {
+              if (err.code === 1 /* PERMISSION_DENIED */) {
+                resolve('Permissão de localização negada. Habilite para enviar fotos neste evento.');
+              } else if (err.code === 2 /* POSITION_UNAVAILABLE */) {
+                resolve('Localização indisponível. Verifique o GPS.');
+              } else {
+                resolve('Não foi possível obter sua localização. Tente novamente.');
+              }
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+          );
+        });
+      }
 
       // ── Photo count helpers (localStorage → survives page reloads) ──
       function _countKey() { return `opah_photos_${eventId}_${_uploadUid}`; }
@@ -999,6 +1041,10 @@ São Paulo, Brasil
         _modEnabled = eventData.moderationEnabled === true;
         _isTrusted  = isManager || isCoOwner;
         _canGallery = eventData.uploadRestriction !== 'ownersOnly' || _isTrusted;
+        _geofenceEnabled = eventData.geofenceEnabled === true && !_isTrusted;
+        _geofenceLat     = eventData.geofenceLatitude  || 0;
+        _geofenceLng     = eventData.geofenceLongitude || 0;
+        _geofenceRadius  = eventData.geofenceRadiusMeters || 0;
 
         // Restore count from localStorage immediately (fast, survives reload)
         _loadLocalCount();
@@ -1014,6 +1060,22 @@ São Paulo, Brasil
       // ── Upload handler ────────────────────────────────────────────
       async function handleFiles(files) {
         if (!files || files.length === 0) return;
+
+        // Geofence check — runs once per batch (same as the app)
+        if (_geofenceEnabled) {
+          setStatus('Verificando localização…');
+          $('progress-wrap').classList.remove('hidden');
+          const geoErr = await _checkGeofence();
+          if (geoErr) {
+            setStatus(geoErr, 'err');
+            setTimeout(() => {
+              $('progress-wrap').classList.add('hidden');
+              $('upload-status').textContent = '';
+            }, 5000);
+            return;
+          }
+        }
+
         $('progress-wrap').classList.remove('hidden');
         $('upload-status').className = 'status-msg';
         $('upload-status').textContent = '';

@@ -715,6 +715,16 @@
       let _uploadUid = null, _modEnabled = false, _isTrusted = false, _canGallery = true;
       let _localPhotoCount = 0;
 
+      // ── Photo count helpers (localStorage → survives page reloads) ──
+      function _countKey() { return `opah_photos_${eventId}_${_uploadUid}`; }
+      function _loadLocalCount() {
+        const v = parseInt(localStorage.getItem(_countKey()) || '0', 10);
+        _localPhotoCount = isNaN(v) ? 0 : v;
+      }
+      function _saveLocalCount() {
+        localStorage.setItem(_countKey(), _localPhotoCount);
+      }
+
       /** Collapse the big app-download buttons and auto-show the upload card */
       function collapseAppCta() {
         $('cta-app').classList.add('hidden');
@@ -990,6 +1000,9 @@ São Paulo, Brasil
         _isTrusted  = isManager || isCoOwner;
         _canGallery = eventData.uploadRestriction !== 'ownersOnly' || _isTrusted;
 
+        // Restore count from localStorage immediately (fast, survives reload)
+        _loadLocalCount();
+
         if (!_canGallery) {
           $('label-gallery').classList.add('hidden');
           $('upload-restricted').classList.remove('hidden');
@@ -1013,6 +1026,7 @@ São Paulo, Brasil
             await uploadSinglePhoto(file, _uploadUid, _modEnabled, _isTrusted);
             uploaded++;
             _localPhotoCount++;
+            _saveLocalCount();
             setProgress(uploaded / total * 100);
           } catch (err) {
             console.error('upload error', err);
@@ -1031,6 +1045,7 @@ São Paulo, Brasil
       }
 
       async function refreshUploadSummary() {
+        // Show locally-stored count immediately (survives reload, no network needed)
         $('user-photo-count').textContent = _localPhotoCount || '…';
         if (!eventId || !_uploadUid) return;
         try {
@@ -1039,11 +1054,18 @@ São Paulo, Brasil
             where('uploadedByUserId', '==', _uploadUid)
           );
           const result = await getCountFromServer(q);
-          const total = Math.max(result.data().count, _localPhotoCount);
-          $('user-photo-count').textContent = total;
-        } catch (e) {
-          console.error('refreshUploadSummary:', e.code, e.message);
+          const serverCount = result.data().count;
+          // Server is the source of truth; update local cache if server knows more
+          if (serverCount > _localPhotoCount) {
+            _localPhotoCount = serverCount;
+            _saveLocalCount();
+          }
           $('user-photo-count').textContent = _localPhotoCount;
+        } catch (e) {
+          // getCountFromServer failed (rules / network) — localStorage value still shown
+          console.warn('refreshUploadSummary (server):', e.code, e.message);
+          // If we have nothing from localStorage either, show 0 rather than "…"
+          if (!_localPhotoCount) $('user-photo-count').textContent = 0;
         }
       }
 

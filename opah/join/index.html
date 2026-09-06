@@ -4,28 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Entrar no evento · Opah</title>
-    <meta
-      name="description"
-      content="Baixe o Opah para entrar no seu evento."
-    />
+    <meta name="description" content="Entre no seu evento pelo Opah." />
     <meta name="robots" content="noindex,nofollow" />
     <meta name="theme-color" content="#100E0C" />
-    <!--
-      Shows Safari's "Smart App Banner" when the app is installed. Replace
-      YOUR_APPSTORE_ID once Opah has an App Store listing (see
-      web_landing/README.md). Tapping the banner is the ONLY reliable way
-      to re-hand off to the app from inside Safari — so keep this meta tag.
-    -->
-    <meta
-      name="apple-itunes-app"
-      content="app-id=YOUR_APPSTORE_ID, app-argument=event"
-    />
+    <meta name="apple-itunes-app" content="app-id=6761278869, app-argument=event" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
       :root {
         --brand: #ffb74d;
@@ -36,157 +21,218 @@
         --card: rgba(28, 24, 21, 0.72);
         --card-border: rgba(255, 255, 255, 0.08);
         --chip: rgba(255, 255, 255, 0.06);
+        --danger: #f87171;
+        --success: #4ade80;
       }
       * { box-sizing: border-box; }
       html, body {
-        margin: 0;
-        padding: 0;
+        margin: 0; padding: 0;
         background: #100e0c;
         color: var(--fg);
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
       }
       body::before {
-        /* Warm radial glow matching the in-app invite card. */
         content: "";
-        position: fixed;
-        inset: 0;
+        position: fixed; inset: 0;
         background:
-          radial-gradient(120% 90% at 85% -10%, #4a3020 0%, rgba(74, 48, 32, 0) 55%),
-          radial-gradient(110% 80% at 50% 120%, #2a1d14 0%, rgba(42, 29, 20, 0) 60%);
-        pointer-events: none;
-        z-index: 0;
+          radial-gradient(120% 90% at 85% -10%, #4a3020 0%, rgba(74,48,32,0) 55%),
+          radial-gradient(110% 80% at 50% 120%, #2a1d14 0%, rgba(42,29,20,0) 60%);
+        pointer-events: none; z-index: 0;
       }
       main {
-        position: relative;
-        z-index: 1;
+        position: relative; z-index: 1;
         min-height: 100dvh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 48px 22px 56px;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: flex-start;
+        padding: 40px 22px 56px; gap: 16px;
       }
       .card {
-        width: 100%;
-        max-width: 380px;
+        width: 100%; max-width: 380px;
         background: var(--card);
         border: 1px solid var(--card-border);
         border-radius: 28px;
-        padding: 40px 28px 32px;
+        padding: 36px 28px 28px;
         text-align: center;
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
-        animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+        animation: rise 0.5s cubic-bezier(0.22,1,0.36,1) both;
       }
+      .card + .card { animation-delay: 0.08s; }
       @keyframes rise {
         from { opacity: 0; transform: translateY(16px); }
-        to { opacity: 1; transform: translateY(0); }
+        to   { opacity: 1; transform: translateY(0); }
       }
-      .logo {
-        width: 96px;
-        height: 96px;
-        margin: 0 auto 22px;
-        border-radius: 24px;
-        display: block;
-        object-fit: cover;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+
+      /* ── Event cover ── */
+      .event-cover {
+        width: 96px; height: 96px;
+        margin: 0 auto 20px;
+        border-radius: 20px;
+        overflow: hidden;
+        background: rgba(255,255,255,0.06);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 40px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+        flex-shrink: 0;
       }
+      .event-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
       h1 {
         margin: 0;
         font-family: "Playfair Display", serif;
-        font-weight: 600;
-        font-size: 30px;
-        letter-spacing: 0.2px;
-        line-height: 1.15;
+        font-weight: 600; font-size: 26px;
+        letter-spacing: 0.2px; line-height: 1.2;
       }
-      p.subtitle {
-        margin: 12px auto 0;
-        color: var(--muted);
-        font-size: 15px;
-        line-height: 1.5;
-        max-width: 280px;
+      .event-meta {
+        margin: 8px 0 0;
+        font-size: 13px; color: var(--muted);
+        display: flex; flex-direction: column; gap: 3px;
+        align-items: center;
       }
 
-      .cta {
-        margin-top: 28px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
+      .divider {
+        margin: 22px 0;
+        display: flex; align-items: center; gap: 12px;
+        color: var(--muted); font-size: 12px;
       }
+      .divider::before, .divider::after {
+        content: ""; flex: 1;
+        height: 1px; background: var(--card-border);
+      }
+
+      /* ── Buttons ── */
+      .cta { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
       .btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 15px 18px;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 14px 18px;
         border-radius: 14px;
         border: 1px solid var(--card-border);
-        background: rgba(255, 255, 255, 0.04);
+        background: rgba(255,255,255,0.04);
         color: var(--fg);
-        font-size: 16px;
-        font-weight: 600;
-        text-decoration: none;
+        font-size: 15px; font-weight: 600;
+        text-decoration: none; cursor: pointer;
         transition: transform 0.12s ease, background 0.18s ease, box-shadow 0.18s ease;
+        width: 100%;
       }
       .btn:active { transform: scale(0.985); }
       .btn .icon { width: 18px; height: 18px; flex: none; }
-      .btn.secondary:hover { background: rgba(255, 255, 255, 0.08); }
+      .btn.secondary:hover { background: rgba(255,255,255,0.08); }
       .btn.primary {
         background: linear-gradient(135deg, #ffc46b 0%, var(--brand) 100%);
         color: #2a1a08;
         border-color: transparent;
-        box-shadow: 0 12px 26px rgba(255, 183, 77, 0.32);
+        box-shadow: 0 12px 26px rgba(255,183,77,0.32);
       }
-      .btn.primary:hover { box-shadow: 0 14px 32px rgba(255, 183, 77, 0.42); }
+      .btn.primary:hover { box-shadow: 0 14px 32px rgba(255,183,77,0.42); }
       .btn.primary:active { background: var(--brand-dark); }
-      .hidden { display: none !important; }
-
-      .event-tag {
-        margin: 24px 0 0;
-        font-size: 12px;
+      .btn.ghost {
+        background: transparent;
+        border-color: rgba(255,255,255,0.12);
         color: var(--muted);
-        letter-spacing: 0.2px;
+        font-size: 13px;
+        padding: 10px 16px;
       }
-      .event-tag code {
+      .btn.ghost:hover { background: rgba(255,255,255,0.05); color: var(--fg); }
+      .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+      /* ── Upload area ── */
+      .upload-zone {
+        border: 2px dashed rgba(255,183,77,0.3);
+        border-radius: 16px;
+        padding: 28px 16px;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+        text-align: center;
+      }
+      .upload-zone:hover, .upload-zone.dragover {
+        border-color: var(--brand);
+        background: rgba(255,183,77,0.05);
+      }
+      .upload-zone p { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+      .upload-zone .upload-icon { font-size: 32px; }
+
+      /* ── Progress ── */
+      .progress-wrap {
+        margin-top: 14px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 100px;
+        height: 6px; overflow: hidden;
+      }
+      .progress-bar {
+        height: 100%; border-radius: 100px;
+        background: linear-gradient(90deg, var(--brand-dark), var(--brand));
+        transition: width 0.15s ease;
+        width: 0%;
+      }
+      .status-msg {
+        margin-top: 10px;
+        font-size: 13px; color: var(--muted);
+        min-height: 18px;
+      }
+      .status-msg.ok { color: var(--success); }
+      .status-msg.err { color: var(--danger); }
+
+      /* ── User pill ── */
+      .user-pill {
+        display: inline-flex; align-items: center; gap: 8px;
         background: var(--chip);
         border: 1px solid var(--card-border);
-        padding: 3px 8px;
-        border-radius: 6px;
-        font-size: 11px;
-        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        color: var(--fg);
+        border-radius: 100px;
+        padding: 6px 12px 6px 6px;
+        font-size: 13px;
+        margin-bottom: 16px;
+      }
+      .user-pill img {
+        width: 24px; height: 24px;
+        border-radius: 50%; object-fit: cover;
+        background: rgba(255,255,255,0.06);
+      }
+      .user-pill .avatar-placeholder {
+        width: 24px; height: 24px;
+        border-radius: 50%; background: rgba(255,255,255,0.1);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 12px;
       }
 
+      .hidden { display: none !important; }
+      .text-muted { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
       .footer {
-        margin: 22px 0 0;
-        font-size: 12px;
-        line-height: 1.5;
-        color: var(--muted);
-        z-index: 1;
+        font-size: 12px; color: var(--muted);
+        line-height: 1.5; z-index: 1; text-align: center;
       }
+      .spinner {
+        display: inline-block;
+        width: 16px; height: 16px;
+        border: 2px solid rgba(255,255,255,0.15);
+        border-top-color: var(--brand);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        vertical-align: middle;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
     </style>
   </head>
   <body>
     <main>
-      <div class="card">
-        <img class="logo" src="logo.png" alt="Opah" width="96" height="96" />
-        <h1>Entrar no evento</h1>
-        <p class="subtitle">
-          Baixe o app Opah para ver o convite e participar.
-        </p>
 
-        <div class="cta">
+      <!-- ── Card 1: Event info + download links ── -->
+      <div class="card" id="card-event">
+        <div class="event-cover" id="event-cover">
+          <span id="event-emoji">📷</span>
+        </div>
+        <h1 id="event-name">Carregando…</h1>
+        <div class="event-meta" id="event-meta"></div>
+
+        <div class="cta" id="cta-app">
           <a id="open-app" class="btn primary hidden" href="#">
             <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             Abrir no app
           </a>
-          <a id="ios-store" class="btn secondary" href="#" target="_blank" rel="noopener">
+          <a id="ios-store" class="btn secondary" href="#">
             <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M16.4 12.9c0-2 1.6-3 1.7-3.1-.9-1.4-2.4-1.6-2.9-1.6-1.2-.1-2.4.7-3 .7-.6 0-1.6-.7-2.6-.7-1.3 0-2.6.8-3.2 2-1.4 2.4-.4 6 1 8 .7 1 1.4 2 2.4 2 .9 0 1.3-.6 2.4-.6 1.1 0 1.4.6 2.4.6 1 0 1.6-.9 2.3-1.9.5-.7.7-1.1 1.1-2-2.9-1.1-3.1-4.8.4-3.4zM14.6 6.3c.5-.6.8-1.5.7-2.3-.7 0-1.6.5-2.1 1.1-.5.5-.9 1.4-.8 2.2.8.1 1.6-.4 2.2-1z"/>
             </svg>
@@ -198,56 +244,437 @@
             </svg>
             Baixar no Android
           </a>
+
+          <div style="display:flex;align-items:center;gap:12px;margin:4px 0 2px;">
+            <div style="flex:1;height:1px;background:var(--card-border);"></div>
+            <span style="font-size:11px;color:var(--muted);">ou</span>
+            <div style="flex:1;height:1px;background:var(--card-border);"></div>
+          </div>
+
+          <button class="btn secondary" id="btn-show-web-upload" style="gap:10px;">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M12 7v6M9 10l3-3 3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Enviar pelo browser
+            <span style="font-size:10px;font-weight:500;background:rgba(255,183,77,0.15);color:var(--brand);border-radius:6px;padding:2px 6px;letter-spacing:0.3px;">beta</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Card 2: Web upload ── -->
+      <div class="card hidden" id="card-upload">
+
+        <!-- Not logged in -->
+        <div id="section-signin">
+          <p style="margin:0 0 6px; font-weight:600; font-size:15px;">Enviar fotos pelo navegador</p>
+          <p class="text-muted" style="margin-bottom:20px;">Entre com sua conta para enviar fotos diretamente daqui.</p>
+          <button class="btn primary" id="btn-google-signin">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Entrar com Google
+          </button>
+          <p id="signin-error" class="status-msg err hidden"></p>
         </div>
 
-        <p id="event-info" class="event-tag"></p>
+        <!-- Logged in -->
+        <div id="section-upload" class="hidden">
+          <div id="user-pill" class="user-pill">
+            <div class="avatar-placeholder" id="user-avatar-placeholder">👤</div>
+            <span id="user-name">…</span>
+          </div>
+
+          <div id="upload-allowed">
+            <!-- Camera button (always open) -->
+            <label class="btn primary" style="margin-bottom:10px; cursor:pointer;" id="label-camera">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              Tirar foto
+              <input type="file" accept="image/*" capture="environment" id="input-camera" class="hidden" />
+            </label>
+
+            <!-- Gallery button (may be restricted) -->
+            <label class="btn secondary" style="cursor:pointer;" id="label-gallery">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="2"/>
+                <path d="m21 15-5-5L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Escolher da galeria
+              <input type="file" accept="image/*" multiple id="input-gallery" class="hidden" />
+            </label>
+
+            <div id="progress-wrap" class="progress-wrap hidden">
+              <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <p id="upload-status" class="status-msg"></p>
+          </div>
+
+          <div id="upload-restricted" class="hidden">
+            <p class="text-muted">Apenas o organizador pode enviar fotos da galeria neste evento.</p>
+            <p class="text-muted" style="margin-top:6px;">Mas você ainda pode <strong style="color:var(--fg)">tirar fotos</strong> diretamente pelo app!</p>
+          </div>
+
+          <div class="divider" style="margin:20px 0 14px;">ou</div>
+
+          <button class="btn ghost" id="btn-signout">
+            Sair da conta
+          </button>
+        </div>
+
+        <!-- Not a member + can't join -->
+        <div id="section-no-access" class="hidden">
+          <p style="margin:0 0 8px; font-weight:600; font-size:15px;">Acesso negado</p>
+          <p class="text-muted">Você não foi convidado(a) para este evento.</p>
+          <button class="btn ghost" style="margin-top:16px;" id="btn-signout-2">Sair da conta</button>
+        </div>
+
       </div>
+
       <p class="footer">Já tem o app? Abra o Opah pelo ícone na tela inicial.</p>
     </main>
 
+    <!-- Plain sync script: store links + app deep link (no Firebase dependency) -->
     <script>
-      var params = new URLSearchParams(location.search);
-      var eventId = params.get('event') || params.get('id') || '';
+      (function () {
+        var params  = new URLSearchParams(location.search);
+        var eventId = params.get('event') || params.get('id') || '';
 
-      var APP_STORE_URL = 'https://apps.apple.com/app/idYOUR_APPSTORE_ID';
-      var PLAY_STORE_URL =
-        'https://play.google.com/store/apps/details?id=com.freshfishdigital.opah';
+        var APP_STORE_URL  = 'itms-apps://apps.apple.com/br/app/opah/id6761278869';
+        var PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.freshfishdigital.opah';
 
-      document.getElementById('ios-store').href = APP_STORE_URL;
-      document.getElementById('android-store').href = PLAY_STORE_URL;
+        document.getElementById('ios-store').href     = APP_STORE_URL;
+        document.getElementById('android-store').href = PLAY_STORE_URL;
 
-      var ua = navigator.userAgent || '';
-      var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-      var isAndroid = /Android/.test(ua);
+        var ua        = navigator.userAgent || '';
+        var isIOS     = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+        var isAndroid = /Android/.test(ua);
+        if (isIOS)     document.getElementById('android-store').classList.add('hidden');
+        if (isAndroid) document.getElementById('ios-store').classList.add('hidden');
 
-      if (isIOS) document.getElementById('android-store').classList.add('hidden');
-      if (isAndroid) document.getElementById('ios-store').classList.add('hidden');
-      // On desktop show both store links.
+        if ((isIOS || isAndroid) && eventId) {
+          var btn  = document.getElementById('open-app');
+          btn.href = 'opah://join?event=' + encodeURIComponent(eventId);
+          btn.classList.remove('hidden');
+        }
+      })();
+    </script>
 
-      // Custom-scheme fallback: when the page is opened inside Safari/Chrome
-      // (e.g. iOS Camera also opening Safari in parallel with the Universal
-      // Link handoff), a same-domain link/reload won't re-trigger the Universal
-      // Link. The opah:// scheme DOES hand off from inside the browser, so we
-      // show an "Abrir no app" button on mobile.
-      if ((isIOS || isAndroid) && eventId) {
-        var openBtn = document.getElementById('open-app');
-        openBtn.href = 'opah://join?event=' + encodeURIComponent(eventId);
-        openBtn.classList.remove('hidden');
-      }
+    <!-- Firebase SDK (modular, CDN) -->
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js';
+      import {
+        getAuth, GoogleAuthProvider,
+        signInWithPopup, signInWithRedirect, getRedirectResult,
+        onAuthStateChanged, signOut
+      } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js';
+      import {
+        getFirestore, doc, getDoc, updateDoc, setDoc, collection,
+        arrayUnion, serverTimestamp
+      } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js';
+      import {
+        getStorage, ref as storageRef,
+        uploadBytesResumable, getDownloadURL
+      } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js';
 
-      if (eventId) {
-        document.getElementById('event-info').innerHTML =
-          'ID do evento: <code>' + escapeHtml(eventId) + '</code>';
-      }
+      // ── Firebase config ──────────────────────────────────────────
+      const app = initializeApp({
+        apiKey:            'AIzaSyDUaVe5R83dkPietk9z08klk8AOFikFo-8',
+        authDomain:        'opah-a618d.firebaseapp.com',
+        projectId:         'opah-a618d',
+        storageBucket:     'opah-a618d.firebasestorage.app',
+        messagingSenderId: '963795818634',
+        appId:             '1:963795818634:web:98545eb3ba6c907dd6f573',
+      });
+      const auth    = getAuth(app);
+      const db      = getFirestore(app);
+      const storage = getStorage(app);
+
+      // ── Helpers ──────────────────────────────────────────────────
+      const params  = new URLSearchParams(location.search);
+      const eventId = params.get('event') || params.get('id') || '';
+      const $ = id => document.getElementById(id);
 
       function escapeHtml(s) {
         return String(s)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#39;');
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
       }
+
+      const TYPE_EMOJI = {
+        wedding:'💍', birthday:'🎂', trip:'✈️',
+        party:'🎉', graduation:'🎓', other:'📷',
+      };
+
+      function formatDate(iso) {
+        if (!iso) return null;
+        try {
+          return new Date(iso).toLocaleDateString('pt-BR', {
+            day:'numeric', month:'long', year:'numeric'
+          });
+        } catch { return null; }
+      }
+
+      // ── Event data ───────────────────────────────────────────────
+      let eventData = null;
+
+      async function loadEvent() {
+        if (!eventId) {
+          $('event-name').textContent = 'Link inválido';
+          return;
+        }
+        try {
+          const snap = await getDoc(doc(db, 'events', eventId));
+          if (!snap.exists()) {
+            $('event-name').textContent = 'Evento não encontrado';
+            return;
+          }
+          eventData = snap.data();
+
+          // Cover
+          const emoji = TYPE_EMOJI[eventData.type] || '📷';
+          $('event-emoji').textContent = emoji;
+          if (eventData.coverImageUrl) {
+            const img = document.createElement('img');
+            img.src = eventData.coverImageUrl;
+            img.alt = '';
+            $('event-cover').innerHTML = '';
+            $('event-cover').appendChild(img);
+          }
+
+          // Name & meta
+          $('event-name').textContent = eventData.name || 'Evento sem nome';
+          const meta = [];
+          const scheduled = eventData.scheduledAt?.toDate
+            ? formatDate(eventData.scheduledAt.toDate().toISOString())
+            : null;
+          if (scheduled) meta.push('📅 ' + scheduled);
+          $('event-meta').textContent = meta.join(' · ');
+        } catch (err) {
+          console.error('loadEvent', err);
+          $('event-name').textContent = 'Evento';
+        }
+      }
+
+      // ── Auth ─────────────────────────────────────────────────────
+      async function handleRedirectResult() {
+        try {
+          await getRedirectResult(auth);
+        } catch (e) {
+          showSigninError(e.message || 'Erro ao entrar. Tente novamente.');
+        }
+      }
+
+      function showSigninError(msg) {
+        const el = $('signin-error');
+        el.textContent = msg;
+        el.classList.remove('hidden');
+      }
+
+      $('btn-google-signin').addEventListener('click', async () => {
+        $('signin-error').classList.add('hidden');
+        const provider = new GoogleAuthProvider();
+        try {
+          // popup works on most browsers; fall back to redirect on mobile
+          await signInWithPopup(auth, provider);
+        } catch (popupErr) {
+          if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request') {
+            await signInWithRedirect(auth, provider);
+          } else {
+            showSigninError(popupErr.message || 'Erro ao entrar.');
+          }
+        }
+      });
+
+      $('btn-signout').addEventListener('click', () => signOut(auth));
+      $('btn-signout-2').addEventListener('click', () => signOut(auth));
+
+      // ── Auth state ───────────────────────────────────────────────
+      onAuthStateChanged(auth, async user => {
+        if (!user) {
+          $('section-signin').classList.remove('hidden');
+          $('section-upload').classList.add('hidden');
+          $('section-no-access').classList.add('hidden');
+          return;
+        }
+
+        // Show user pill
+        $('section-signin').classList.add('hidden');
+        $('user-name').textContent = user.displayName || user.email || 'Usuário';
+        if (user.photoURL) {
+          const img = document.createElement('img');
+          img.src = user.photoURL; img.alt = '';
+          $('user-pill').replaceChild(img, $('user-avatar-placeholder'));
+        }
+
+        if (!eventData || !eventId) {
+          $('section-upload').classList.remove('hidden');
+          return;
+        }
+
+        // Check/establish membership
+        const uid   = user.uid;
+        const owners  = [eventData.ownerId, ...(eventData.ownerIds || [])].filter(Boolean);
+        const coOwners = eventData.coOwnerIds || [];
+        const invited  = eventData.invitedUserIds || [];
+        const joined   = eventData.joinedUserIds  || [];
+        const joinEnabled = eventData.joinEnabled === true;
+
+        const isManager  = owners.includes(uid);
+        const isCoOwner  = coOwners.includes(uid);
+        const isMember   = isManager || isCoOwner ||
+                           invited.includes(uid) || joined.includes(uid);
+
+        if (!isMember && !joinEnabled) {
+          $('section-no-access').classList.remove('hidden');
+          return;
+        }
+
+        if (!isMember && joinEnabled) {
+          // Auto-join
+          try {
+            await updateDoc(doc(db, 'events', eventId), {
+              joinedUserIds: arrayUnion(uid),
+            });
+          } catch (e) {
+            console.warn('auto-join failed', e);
+          }
+        }
+
+        // Upload restriction: 'ownerOnly' means gallery is owner/coOwner only
+        const restriction  = eventData.uploadRestriction || null;
+        const canGallery   = !restriction || restriction !== 'ownerOnly' ||
+                             isManager || isCoOwner;
+        const modEnabled   = eventData.moderationEnabled === true;
+        const isTrusted    = isManager || isCoOwner;
+
+        $('section-upload').classList.remove('hidden');
+        if (!canGallery) {
+          $('label-gallery').classList.add('hidden');
+          $('upload-restricted').classList.remove('hidden');
+        }
+
+        // ── Upload handler ────────────────────────────────────────
+        async function handleFiles(files) {
+          if (!files || files.length === 0) return;
+
+          $('progress-wrap').classList.remove('hidden');
+          $('upload-status').className = 'status-msg';
+          $('upload-status').textContent = '';
+
+          let uploaded = 0;
+          const total  = files.length;
+
+          for (const file of files) {
+            try {
+              setStatus(`Enviando ${uploaded + 1} de ${total}…`);
+              await uploadSinglePhoto(file, uid, modEnabled, isTrusted);
+              uploaded++;
+              setProgress(uploaded / total * 100);
+            } catch (err) {
+              console.error('upload error', err);
+              setStatus(`Erro ao enviar: ${err.message || 'tente novamente.'}`, 'err');
+              return;
+            }
+          }
+
+          setStatus(total === 1 ? 'Foto enviada! ✓' : `${uploaded} fotos enviadas! ✓`, 'ok');
+          setTimeout(() => {
+            $('progress-wrap').classList.add('hidden');
+            $('upload-status').textContent = '';
+            setProgress(0);
+          }, 3000);
+        }
+
+        $('input-camera').addEventListener('change', e => handleFiles(e.target.files));
+        $('input-gallery').addEventListener('change', e => handleFiles(e.target.files));
+
+        // Drag & drop on gallery label
+        $('label-gallery').addEventListener('dragover', e => {
+          e.preventDefault();
+          $('label-gallery').classList.add('dragover');
+        });
+        $('label-gallery').addEventListener('dragleave', () =>
+          $('label-gallery').classList.remove('dragover'));
+        $('label-gallery').addEventListener('drop', e => {
+          e.preventDefault();
+          $('label-gallery').classList.remove('dragover');
+          if (canGallery) handleFiles(e.dataTransfer.files);
+        });
+      });
+
+      // ── Single photo upload ───────────────────────────────────────
+      async function uploadSinglePhoto(file, uid, modEnabled, isTrusted) {
+        const photosCol = collection(db, 'events', eventId, 'photos');
+        const photoRef  = doc(photosCol);
+        const photoId   = photoRef.id;
+        const ext       = file.name.includes('.')
+          ? file.name.substring(file.name.lastIndexOf('.'))
+          : '.jpg';
+        const path = `events/${eventId}/photos/${photoId}${ext}`;
+        const sRef = storageRef(storage, path);
+
+        const status = modEnabled && !isTrusted ? 'pending' : 'approved';
+
+        // Write Firestore doc first (empty imageUrl, same as app)
+        await setDoc(photoRef, {
+          uploadedByUserId: uid,
+          takenAt:          serverTimestamp(),
+          likedBy:          [],
+          faceRegions:      [],
+          moderationStatus: status,
+          imageUrl:         '',
+        });
+
+        // Upload to Storage with progress
+        await new Promise((resolve, reject) => {
+          const task = uploadBytesResumable(sRef, file);
+          task.on('state_changed',
+            snap => setProgress(snap.bytesTransferred / snap.totalBytes * 100),
+            reject,
+            async () => {
+              try {
+                const url = await getDownloadURL(task.snapshot.ref);
+                // Update imageUrl + event lastPhotoAt
+                await updateDoc(photoRef, { imageUrl: url });
+                await updateDoc(doc(db, 'events', eventId), {
+                  lastPhotoAt: serverTimestamp(),
+                });
+                resolve();
+              } catch (e) { reject(e); }
+            }
+          );
+        });
+      }
+
+      // ── UI helpers ────────────────────────────────────────────────
+      function setProgress(pct) {
+        $('progress-bar').style.width = Math.min(100, pct) + '%';
+      }
+      function setStatus(msg, cls) {
+        const el = $('upload-status');
+        el.className = 'status-msg' + (cls ? ' ' + cls : '');
+        el.textContent = msg;
+      }
+
+      // ── Show web upload card on button click ──────────────────────
+      $('btn-show-web-upload').addEventListener('click', () => {
+        const card = $('card-upload');
+        card.classList.remove('hidden');
+        $('btn-show-web-upload').classList.add('hidden');
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      // ── Boot ─────────────────────────────────────────────────────
+      await handleRedirectResult();
+      await loadEvent();
     </script>
   </body>
 </html>

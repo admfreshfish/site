@@ -7,7 +7,7 @@
     <meta name="description" content="Entre no seu evento pelo Opah." />
     <meta name="robots" content="noindex,nofollow" />
     <meta name="theme-color" content="#100E0C" />
-    <!-- apple-itunes-app Smart Banner intentionally removed — we want users to see this web page first -->
+    <meta name="apple-itunes-app" content="app-id=6761278869, app-argument=event" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -491,12 +491,12 @@
         onAuthStateChanged, signOut, signInAnonymously
       } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js';
       import {
-        getFirestore, doc, getDoc, updateDoc, setDoc, collection,
-        arrayUnion, serverTimestamp
+        getFirestore, doc, getDoc, getDocs, updateDoc, setDoc,
+        collection, query, where, arrayUnion, serverTimestamp
       } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js';
       import {
         getStorage, ref as storageRef,
-        uploadBytesResumable, getDownloadURL
+        uploadBytes, uploadBytesResumable, getDownloadURL
       } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js';
 
       // ── Firebase config ──────────────────────────────────────────
@@ -659,15 +659,8 @@
         $('onboarding-error').classList.add('hidden');
 
         try {
-          const q = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js')
-            .then(m => m.query(
-              m.collection(db, 'users'),
-              m.where('nicknameLower', '==', nicknameNorm)
-            ));
-          // Simple uniqueness check via direct doc path instead
-          const { getDocs, query: fsQuery, where, collection: fsCol } =
-            await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
-          const snap = await getDocs(fsQuery(fsCol(db,'users'), where('nicknameLower','==', nicknameNorm)));
+          // Uniqueness check
+          const snap = await getDocs(query(collection(db, 'users'), where('nicknameLower', '==', nicknameNorm)));
           const takenByOther = snap.docs.some(d => d.id !== user.uid);
           if (takenByOther) {
             $('onboarding-error').textContent = 'Este apelido já está em uso. Escolha outro.';
@@ -682,8 +675,8 @@
           const avatarFile = $('avatar-file-input').files[0];
           if (avatarFile) {
             const avatarRef = storageRef(storage, `users/${user.uid}/profile/avatar.jpg`);
-            await uploadBytesResumable(avatarRef, avatarFile);
-            photoUrl = await getDownloadURL(avatarRef);
+            const uploadResult = await uploadBytes(avatarRef, avatarFile);
+            photoUrl = await getDownloadURL(uploadResult.ref);
           }
 
           // Save to Firestore

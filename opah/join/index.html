@@ -696,12 +696,13 @@
       let _pendingAuthUser = null;  // holds user while onboarding is shown
       let _uploadUid = null, _modEnabled = false, _isTrusted = false, _canGallery = true;
 
-      /** Collapse the big app-download buttons; show the small text links instead */
+      /** Collapse the big app-download buttons and auto-show the upload card */
       function collapseAppCta() {
         $('cta-app').classList.add('hidden');
         $('cta-app-mini').classList.remove('hidden');
-        // cta-app-mini uses inline flex, toggle hidden restores it
         $('cta-app-mini').style.display = 'flex';
+        // Always reveal the upload card when a real user is present
+        $('card-upload').classList.remove('hidden');
       }
 
       /** Safely set the user pill avatar — works whether placeholder still exists or not */

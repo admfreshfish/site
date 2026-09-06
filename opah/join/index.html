@@ -497,6 +497,20 @@
             <div id="progress-bar" class="progress-bar"></div>
           </div>
           <p id="upload-status" class="status-msg"></p>
+
+          <!-- Post-upload summary -->
+          <div id="upload-summary" class="hidden" style="margin-top:18px;padding:16px;background:rgba(255,183,77,0.07);border:1px solid rgba(255,183,77,0.18);border-radius:14px;text-align:center;">
+            <p style="font-size:22px;margin:0 0 4px;">📸</p>
+            <p style="font-size:15px;font-weight:600;color:var(--fg);margin:0 0 4px;">
+              <span id="user-photo-count">0</span> foto(s) enviada(s) por você
+            </p>
+            <p style="font-size:12px;color:var(--muted);margin:0 0 14px;line-height:1.5;">
+              Baixe o app para ver todas as fotos do evento, curtir e guardar em alta resolução.
+            </p>
+            <a id="summary-store-link" href="#" class="btn primary" style="font-size:13px;padding:11px 18px;display:inline-flex;width:auto;">
+              Baixar o Opah
+            </a>
+          </div>
         </div>
 
         <!-- Not a member + can't join -->
@@ -521,9 +535,9 @@
         var APP_STORE_URL  = 'itms-apps://apps.apple.com/br/app/opah/id6761278869';
         var PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.freshfishdigital.opah';
 
-        // Set hrefs on both full and mini links
-        document.getElementById('ios-store').href      = APP_STORE_URL;
-        document.getElementById('android-store').href  = PLAY_STORE_URL;
+        // Set hrefs on full and mini links
+        document.getElementById('ios-store').href          = APP_STORE_URL;
+        document.getElementById('android-store').href      = PLAY_STORE_URL;
         document.getElementById('ios-store-mini').href     = APP_STORE_URL;
         document.getElementById('android-store-mini').href = PLAY_STORE_URL;
 
@@ -540,6 +554,8 @@
         }
         // Show Apple sign-in only on iOS
         if (isIOS) document.getElementById('btn-apple-signin').classList.remove('hidden');
+        // Summary download button — platform-specific
+        document.getElementById('summary-store-link').href = isIOS ? APP_STORE_URL : PLAY_STORE_URL;
 
         if ((isIOS || isAndroid) && eventId) {
           var deepLink = 'opah://join?event=' + encodeURIComponent(eventId);
@@ -967,6 +983,7 @@ São Paulo, Brasil
           $('upload-restricted').classList.remove('hidden');
         }
         showSection('section-upload');
+        refreshUploadSummary();
       }
 
       // ── Upload handler ────────────────────────────────────────────
@@ -996,6 +1013,23 @@ São Paulo, Brasil
           $('upload-status').textContent = '';
           setProgress(0);
         }, 3000);
+        // Show summary with up-to-date photo count
+        await refreshUploadSummary();
+      }
+
+      async function refreshUploadSummary() {
+        if (!eventId || !_uploadUid) return;
+        try {
+          const snap = await getDocs(query(
+            collection(db, 'events', eventId, 'photos'),
+            where('uploadedByUserId', '==', _uploadUid)
+          ));
+          const count = snap.size;
+          $('user-photo-count').textContent = count;
+          $('upload-summary').classList.remove('hidden');
+        } catch (e) {
+          console.warn('refreshUploadSummary', e);
+        }
       }
 
       $('input-camera').addEventListener('change', e => handleFiles(e.target.files));

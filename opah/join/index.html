@@ -211,6 +211,37 @@
         font-size: 12px;
       }
 
+      /* ── Terms ── */
+      .terms-box {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 14px 16px;
+        max-height: 220px;
+        overflow-y: auto;
+        text-align: left;
+        margin-bottom: 18px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .terms-box pre {
+        margin: 0;
+        font-family: inherit;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--muted);
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .terms-check-row {
+        display: flex; align-items: flex-start; gap: 10px;
+        margin-bottom: 18px; text-align: left; cursor: pointer;
+      }
+      .terms-check-row input[type="checkbox"] {
+        width: 18px; height: 18px; flex-shrink: 0;
+        margin-top: 2px; accent-color: var(--brand); cursor: pointer;
+      }
+      .terms-check-row span { font-size: 13px; color: var(--fg); line-height: 1.4; }
+
       /* ── Onboarding (new-user profile setup) ── */
       .avatar-picker {
         position: relative;
@@ -361,6 +392,27 @@
           </button>
 
           <p id="signin-error" class="status-msg err hidden" style="margin-top:12px;"></p>
+        </div>
+
+        <!-- Terms & Conditions -->
+        <div id="section-terms" class="hidden">
+          <p style="font-weight:600; font-size:15px; margin:0 0 4px;">Termos de Uso</p>
+          <p class="text-muted" style="margin-bottom:16px;">Leia e aceite os termos para continuar.</p>
+
+          <div class="terms-box">
+            <pre id="terms-text">Carregando…</pre>
+          </div>
+
+          <label class="terms-check-row">
+            <input type="checkbox" id="terms-checkbox" />
+            <span>Li e concordo com os <strong style="color:var(--fg)">Termos e Condições de Uso</strong> do Opah</span>
+          </label>
+
+          <button class="btn primary" id="btn-accept-terms" disabled style="margin-bottom:10px;">
+            Aceitar e continuar
+          </button>
+          <button class="btn ghost" id="btn-decline-terms">Recusar e sair</button>
+          <p id="terms-error" class="status-msg err hidden" style="margin-top:10px;"></p>
         </div>
 
         <!-- New user onboarding -->
@@ -638,9 +690,141 @@
         else pill.insertBefore(img, pill.firstChild);
       }
 
+      const TERMS_VERSION = 1;
+      const TERMS_TEXT = `Opah
+
+Termos e Condições de Uso
+
+Última atualização: 29 de abril de 2026
+
+1. Aceitação dos Termos
+
+Bem-vindo ao Opah, um aplicativo desenvolvido e operado pela Fresh Fish Digital. Ao instalar, acessar ou utilizar o Opah, você declara que leu, compreendeu e concorda em estar vinculado a estes Termos e Condições de Uso ("Termos"). Se você não concorda com estes Termos, não utilize o aplicativo.
+Estes Termos constituem um acordo legal entre você ("Usuário") e a Fresh Fish Digital, com sede no Brasil, responsável pelo desenvolvimento e operação do Opah.
+
+2. Descrição do Serviço
+
+O Opah é um aplicativo móvel gratuito que permite a criação de álbuns de fotos privados vinculados a eventos específicos — como casamentos, festas, viagens e reuniões. Os participantes convidados pelo organizador do evento podem fazer upload de fotos diretamente pelo aplicativo, reunindo em um só lugar as imagens capturadas por todos os presentes.
+O Opah não é uma rede social. Não há feed público, não há seguidores e o acesso ao conteúdo de cada álbum é restrito exclusivamente às pessoas convidadas pelo organizador do evento.
+
+3. Cadastro e Acesso
+
+Para utilizar o Opah, você pode precisar criar uma conta fornecendo informações básicas. Ao se cadastrar, você declara que:
+• As informações fornecidas são verdadeiras, precisas e atualizadas;
+• Tem pelo menos 13 (treze) anos de idade;
+• É responsável por manter a confidencialidade de suas credenciais de acesso;
+• Notificará imediatamente a Fresh Fish Digital em caso de uso não autorizado de sua conta.
+
+A Fresh Fish Digital reserva-se o direito de suspender ou encerrar contas que violem estes Termos.
+
+4. Conteúdo do Usuário
+
+4.1 Responsabilidade pelo conteúdo
+
+Você é o único responsável por todo o conteúdo que fizer upload no Opah, incluindo fotos, vídeos e textos ("Conteúdo"). Ao publicar Conteúdo, você declara e garante que:
+• Possui todos os direitos necessários sobre o Conteúdo ou tem autorização dos titulares desses direitos;
+• O Conteúdo não viola direitos de terceiros, incluindo direitos de imagem, privacidade ou direitos autorais;
+• O Conteúdo não é ilegal, ofensivo, discriminatório, difamatório ou pornográfico;
+• Você obteve o consentimento de todas as pessoas identificáveis nas imagens para seu compartilhamento no aplicativo.
+
+4.2 Licença de uso
+
+Ao fazer upload de Conteúdo no Opah, você concede à Fresh Fish Digital uma licença não exclusiva, gratuita, mundial e por prazo determinado para armazenar, processar e exibir o Conteúdo exclusivamente para a prestação do serviço do Opah.
+
+4.3 Conteúdo proibido
+
+É expressamente vedado publicar no Opah qualquer conteúdo que:
+• Contenha imagens de nudez ou caráter sexual envolvendo menores de idade;
+• Incite violência, ódio ou discriminação;
+• Viole a privacidade ou intimidade de terceiros;
+• Infrinja direitos autorais ou de propriedade intelectual de terceiros.
+
+5. Armazenamento de Dados e Fotos
+
+As fotos e demais conteúdos enviados pelos usuários são armazenados em serviços de infraestrutura em nuvem. A Fresh Fish Digital adota medidas técnicas e organizacionais razoáveis para proteger os dados dos usuários.
+
+6. Privacidade e Proteção de Dados
+
+O tratamento de dados pessoais pelo Opah é regido pela Lei Geral de Proteção de Dados Pessoais (LGPD — Lei nº 13.709/2018). Coletamos apenas os dados necessários para a prestação do serviço. Não vendemos, cedemos ou comercializamos dados pessoais de usuários a terceiros.
+
+Para exercer seus direitos de titular de dados: adm@freshfishdigital.com
+
+7. Gratuidade e Alterações Comerciais
+
+O Opah é atualmente oferecido gratuitamente. A Fresh Fish Digital reserva-se o direito de alterar o modelo de negócios no futuro, com comunicação antecipada.
+
+8. Propriedade Intelectual
+
+O Opah, incluindo seu nome, logotipo, interface e código-fonte, é de propriedade exclusiva da Fresh Fish Digital. O conteúdo criado pelos usuários permanece de propriedade dos respectivos autores.
+
+9. Limitação de Responsabilidade
+
+A Fresh Fish Digital não garante que o serviço será ininterrupto ou livre de erros. Não nos responsabilizamos por conteúdo publicado por outros usuários ou falhas de infraestrutura de terceiros.
+
+10. Modificações dos Termos
+
+A Fresh Fish Digital pode atualizar estes Termos a qualquer momento, notificando o usuário com antecedência mínima de 15 dias.
+
+11. Legislação Aplicável
+
+Estes Termos são regidos pelas leis da República Federativa do Brasil. Foro: comarca de São Paulo, SP.
+
+12. Contato
+
+Fresh Fish Digital · adm@freshfishdigital.com · www.freshfishdigital.com
+São Paulo, Brasil
+
+© 2026 Fresh Fish Digital. Todos os direitos reservados.`;
+
       function showSection(id) {
-        ['section-signin','section-onboarding','section-upload','section-no-access']
-          .forEach(s => $( s).classList.toggle('hidden', s !== id));
+        ['section-signin','section-terms','section-onboarding','section-upload','section-no-access']
+          .forEach(s => $(s).classList.toggle('hidden', s !== id));
+      }
+
+      // ── Terms handlers ────────────────────────────────────────────
+      $('terms-text').textContent = TERMS_TEXT;
+      $('terms-checkbox').addEventListener('change', e => {
+        $('btn-accept-terms').disabled = !e.target.checked;
+      });
+      $('btn-accept-terms').addEventListener('click', async () => {
+        const btn = $('btn-accept-terms');
+        btn.disabled = true; btn.textContent = 'Salvando…';
+        $('terms-error').classList.add('hidden');
+        try {
+          await setDoc(doc(db, 'users', _pendingAuthUser.uid), {
+            termsAcceptedAt: serverTimestamp(),
+            termsAcceptedVersion: TERMS_VERSION,
+          }, { merge: true });
+          await checkOrShowOnboarding(_pendingAuthUser);
+        } catch (err) {
+          $('terms-error').textContent = err.message || 'Erro ao salvar. Tente novamente.';
+          $('terms-error').classList.remove('hidden');
+          btn.disabled = false; btn.textContent = 'Aceitar e continuar';
+        }
+      });
+      $('btn-decline-terms').addEventListener('click', async () => {
+        await signOut(auth);
+        $('terms-checkbox').checked = false;
+        $('btn-accept-terms').disabled = true;
+        showSection('section-signin');
+      });
+
+      async function checkOrShowOnboarding(user) {
+        const userSnap = await getDoc(doc(db, 'users', user.uid));
+        const hasNickname = userSnap.exists() && userSnap.data().nickname;
+        if (!hasNickname) {
+          $('nickname-input').value = (user.displayName || '').toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 32);
+          if (user.photoURL) {
+            $('avatar-preview-placeholder').classList.add('hidden');
+            const img = $('avatar-preview-img');
+            img.src = user.photoURL; img.classList.remove('hidden');
+          }
+          showSection('section-onboarding');
+        } else {
+          $('user-name').textContent = userSnap.data().nickname;
+          setUserPillAvatar(userSnap.data().photoUrl || user.photoURL);
+          await checkMembershipAndShowUpload(user);
+        }
       }
 
       // Avatar picker
@@ -811,33 +995,20 @@
         $('section-signin').classList.add('hidden');
         $('user-name').textContent = user.displayName || user.email || 'Usuário';
         setUserPillAvatar(user.photoURL);
+        _pendingAuthUser = user;
 
-        // Check if user has a profile (nickname) already
+        // Check terms acceptance first
         const userSnap = await getDoc(doc(db, 'users', user.uid));
-        const hasNickname = userSnap.exists() && userSnap.data().nickname;
-
-        if (!hasNickname) {
-          // Pre-fill with social name
-          $('nickname-input').value = (user.displayName || '').toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 32);
-          // Pre-fill avatar with social photo
-          if (user.photoURL) {
-            $('avatar-preview-placeholder').classList.add('hidden');
-            const img = $('avatar-preview-img');
-            img.src = user.photoURL; img.classList.remove('hidden');
-          }
-          _pendingAuthUser = user;
-          showSection('section-onboarding');
+        const acceptedVersion = userSnap.exists() ? (userSnap.data().termsAcceptedVersion || 0) : 0;
+        if (acceptedVersion < TERMS_VERSION) {
+          $('terms-checkbox').checked = false;
+          $('btn-accept-terms').disabled = true;
+          showSection('section-terms');
           return;
         }
 
-        // Existing user — update pill with stored nickname
-        const storedNickname = userSnap.data().nickname;
-        $('user-name').textContent = storedNickname;
-        setUserPillAvatar(userSnap.data().photoUrl || user.photoURL);
-
-        _pendingAuthUser = user;
-
-        await checkMembershipAndShowUpload(user);
+        // Terms already accepted — check nickname / proceed
+        await checkOrShowOnboarding(user);
       });
 
       // ── Single photo upload ───────────────────────────────────────

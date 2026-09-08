@@ -5,19 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Opah – Autenticando…</title>
   <!--
-    This page is intentionally NOT listed in .well-known/apple-app-site-association.
-    It exists solely as an OAuth callback intermediary so that the final redirect
-    back to /opah/join does not trigger iOS Universal Links (which would open the
-    native app instead of completing the web sign-in flow).
-
-    Flow:
-      /opah/join  ──(navigate)──►  /opah/auth/?event=XXX&provider=YYY
-        └─ signInWithRedirect ──► Facebook / Google / Apple
-             └─ return to /opah/auth/ (no Universal Link here)
-                  └─ getRedirectResult → window.location.replace('/opah/join?event=XXX')
-                       └─ programmatic JS navigation → no Universal Link trigger ✓
+    OAuth intermediary page — intentionally NOT in apple-app-site-association.
+    On iOS Safari, signInWithRedirect is unreliable because:
+      1. sessionStorage may be wiped when the tab navigates through foreign origins.
+      2. Firebase's iframe credential relay can be blocked by ITP.
+    Solution: on iOS, show a "Tap to continue" button and use signInWithPopup.
+    The popup stays at auth.freshfishdigital.com (same-site subdomain), calls
+    window.close() + postMessage, and never navigates to /opah/join — so
+    Universal Links are not triggered.
+    On non-iOS (Android/desktop): keep the redirect flow.
   -->
   <style>
+    * { box-sizing: border-box; }
     body { margin: 0; display: flex; align-items: center; justify-content: center;
            min-height: 100vh; background: #111; color: #eee;
            font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 15px; }
@@ -25,26 +24,33 @@
                border-top-color: #f5a623; border-radius: 50%;
                animation: spin .8s linear infinite; margin: 0 auto 16px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .wrap { text-align: center; padding: 24px; }
+    .wrap { text-align: center; padding: 24px; max-width: 320px; }
     .err  { color: #ff6b6b; margin-top: 12px; font-size: 13px; }
+    .btn-continue {
+      display: none; margin-top: 24px; width: 100%;
+      padding: 14px 20px; border: none; border-radius: 12px;
+      background: #f5a623; color: #111; font-size: 16px; font-weight: 700;
+      cursor: pointer; letter-spacing: .3px;
+    }
+    .btn-continue:active { opacity: .85; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="spinner"></div>
+    <div class="spinner" id="spinner"></div>
     <p id="msg">Autenticando…</p>
+    <button class="btn-continue" id="btn-continue">Toque para continuar</button>
     <p id="err" class="err" style="display:none;"></p>
   </div>
 
-  <!-- Non-module fallback: if the ES-module script below never starts, show an
-       error after 15 s so the user can go back manually.                       -->
+  <!-- Non-module fallback: if the ES module never executes, show error after 15 s -->
   <script>
     setTimeout(function() {
       var el = document.getElementById('msg');
       if (el && el.textContent === 'Autenticando\u2026') {
-        el.textContent = 'Erro ao carregar script. Volte e tente novamente.';
+        el.textContent = 'Erro ao carregar. Volte e tente novamente.';
         document.getElementById('err').style.display = '';
-        document.getElementById('err').textContent   = 'O script do Firebase não carregou (possível problema de rede ou cache).';
+        document.getElementById('err').textContent   = 'Script do Firebase não carregou (rede ou cache).';
       }
     }, 15000);
   </script>
@@ -53,7 +59,7 @@
     import { initializeApp }     from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js';
     import {
       getAuth, getRedirectResult, onAuthStateChanged,
-      signInWithRedirect,
+      signInWithRedirect, signInWithPopup,
       GoogleAuthProvider,
       FacebookAuthProvider,
       OAuthProvider,
@@ -69,16 +75,19 @@
     });
     const auth = getAuth(app);
 
+    // ── URL / sessionStorage params ───────────────────────────────────
     const SS_EVENT    = 'opah_auth_event';
     const SS_PROVIDER = 'opah_auth_provider';
+    const SS_RETURNING = 'opah_auth_returning';
 
-    const params   = new URLSearchParams(location.search);
-    const eventId  = params.get('event')    || sessionStorage.getItem(SS_EVENT)    || '';
-    const provider = params.get('provider') || sessionStorage.getItem(SS_PROVIDER) || '';
+    const params      = new URLSearchParams(location.search);
+    const eventId     = params.get('event')    || sessionStorage.getItem(SS_EVENT)    || '';
+    const providerKey = params.get('provider') || sessionStorage.getItem(SS_PROVIDER) || '';
 
-    // Persist across redirect
-    if (eventId)  sessionStorage.setItem(SS_EVENT,    eventId);
-    if (provider) sessionStorage.setItem(SS_PROVIDER, provider);
+    if (eventId)     sessionStorage.setItem(SS_EVENT,    eventId);
+    if (providerKey) sessionStorage.setItem(SS_PROVIDER, providerKey);
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
     function joinUrl() {
       const ev = sessionStorage.getItem(SS_EVENT) || eventId;
@@ -86,19 +95,13 @@
     }
 
     function makeProvider(type) {
-      if (type === 'google') {
-        return new GoogleAuthProvider();
-      }
+      if (type === 'google') return new GoogleAuthProvider();
       if (type === 'facebook') {
-        const p = new FacebookAuthProvider();
-        p.addScope('email');
-        return p;
+        const p = new FacebookAuthProvider(); p.addScope('email'); return p;
       }
       if (type === 'apple') {
         const p = new OAuthProvider('apple.com');
-        p.addScope('email');
-        p.addScope('name');
-        return p;
+        p.addScope('email'); p.addScope('name'); return p;
       }
       return null;
     }
@@ -106,86 +109,121 @@
     function goBack(hash) {
       sessionStorage.removeItem(SS_EVENT);
       sessionStorage.removeItem(SS_PROVIDER);
+      sessionStorage.removeItem(SS_RETURNING);
       // Programmatic JS navigation — does NOT trigger iOS Universal Links ✓
       window.location.replace(joinUrl() + (hash || ''));
     }
-
-    // ── Helpers ──────────────────────────────────────────────────────
-    const SS_RETURNING = 'opah_auth_returning';
 
     function showErr(msg) {
       document.getElementById('err').style.display = '';
       document.getElementById('err').textContent   = msg;
     }
-    function setMsg(msg) { document.getElementById('msg').textContent = msg; }
-
+    function setMsg(t) { document.getElementById('msg').textContent = t; }
     function onErr(e) {
       console.error('auth error', e.code, e.message);
       showErr((e.message || 'Erro de autenticação.') + (e.code ? ` (${e.code})` : ''));
       setTimeout(() => goBack('#autherror=' + encodeURIComponent(e.code || 'unknown')), 4000);
     }
 
-    // ── Main ─────────────────────────────────────────────────────────
-    // Strategy:
-    //  • First load  → sessionStorage flag absent → signInWithRedirect (navigate away)
-    //  • Return load → flag = '1'               → wait for real user in onAuthStateChanged
+    // ── iOS path: signInWithPopup from a user-gesture button ─────────
     //
-    // On the RETURN load, Firebase fires onAuthStateChanged TWICE:
-    //   1st event → anonymous user  (restored from localStorage/IndexedDB old session)
-    //   2nd event → real OAuth user (after Firebase processes the pending redirect)
-    // We must NOT unsubscribe after the 1st event — keep listening until a
-    // non-anonymous user arrives or the 10-second timeout fires.
+    // signInWithRedirect on iOS Safari is unreliable: sessionStorage can be
+    // wiped when the browser navigates through cross-origin URLs, and the
+    // iframe-based credential relay is blocked by ITP even for subdomains.
+    //
+    // With authDomain = auth.freshfishdigital.com, signInWithPopup opens a
+    // tab that stays on that subdomain, completes auth, then calls
+    // window.close() + postMessage — never navigating to /opah/join, so
+    // Universal Links are never triggered.
+    //
+    // The only catch: window.open must be called synchronously inside a
+    // user-gesture handler (iOS popup blocking). We satisfy this by showing
+    // the "Toque para continuar" button and calling signInWithPopup directly
+    // inside its click handler.
 
-    const isReturning = sessionStorage.getItem(SS_RETURNING) === '1';
-
-    if (!isReturning) {
-      // ── FIRST LOAD ────────────────────────────────────────────────
-      const p = makeProvider(provider);
+    if (isIOS) {
+      const p = makeProvider(providerKey);
       if (!p) { goBack(); }
       else {
-        setMsg('Redirecionando para ' + provider + '…');
-        sessionStorage.setItem(SS_RETURNING, '1');
-        signInWithRedirect(auth, p).catch(e => {
-          sessionStorage.removeItem(SS_RETURNING);
-          onErr(e);
+        const label = providerKey === 'google' ? 'Google'
+                    : providerKey === 'facebook' ? 'Facebook'
+                    : providerKey === 'apple' ? 'Apple'
+                    : 'conta';
+
+        setMsg('Toque no botão para continuar.');
+        document.getElementById('spinner').style.display = 'none';
+
+        const btn = document.getElementById('btn-continue');
+        btn.textContent = `Continuar com ${label}`;
+        btn.style.display = 'block';
+
+        btn.addEventListener('click', async () => {
+          btn.disabled = true;
+          btn.textContent = 'Aguarde…';
+          document.getElementById('spinner').style.display = '';
+          setMsg('Abrindo login…');
+          try {
+            await signInWithPopup(auth, p);
+            goBack(); // ✓ signed in — return to join page
+          } catch (e) {
+            if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
+              // User closed — just go back without an error
+              goBack();
+            } else {
+              onErr(e);
+            }
+          }
         });
       }
 
+    // ── Non-iOS path: signInWithRedirect (works reliably on Android / desktop) ──
     } else {
-      // ── RETURN LOAD ───────────────────────────────────────────────
-      sessionStorage.removeItem(SS_RETURNING);
-      setMsg('Verificando conta…');
+      const isReturning = sessionStorage.getItem(SS_RETURNING) === '1';
 
-      // Race two signals in parallel:
-      //  A) onAuthStateChanged fires with a real (non-anonymous) user
-      //  B) getRedirectResult resolves with the user credential
-      // The first to produce a real user wins.
-      // If getRedirectResult REJECTS, we surface the real Firebase error code.
-      let settled = false;
-      const realUser = await new Promise((resolve, reject) => {
-        const t = setTimeout(() => { if (!settled) { settled=true; resolve(null); } }, 10000);
+      if (!isReturning) {
+        // FIRST LOAD — initiate redirect
+        const p = makeProvider(providerKey);
+        if (!p) { goBack(); }
+        else {
+          setMsg('Redirecionando…');
+          sessionStorage.setItem(SS_RETURNING, '1');
+          signInWithRedirect(auth, p).catch(e => {
+            sessionStorage.removeItem(SS_RETURNING);
+            onErr(e);
+          });
+        }
 
-        // Signal A — keep listener open across multiple events
-        onAuthStateChanged(auth, user => {
-          if (!settled && user && !user.isAnonymous) {
-            settled = true; clearTimeout(t); resolve(user);
-          }
+      } else {
+        // RETURN LOAD — wait for Firebase to process the redirect result
+        sessionStorage.removeItem(SS_RETURNING);
+        setMsg('Verificando conta…');
+
+        // Race:  A) onAuthStateChanged (real user)  vs  B) getRedirectResult
+        // If getRedirectResult rejects, surface the real Firebase error code.
+        let settled = false;
+        const realUser = await new Promise((resolve, reject) => {
+          const t = setTimeout(() => { if (!settled) { settled = true; resolve(null); } }, 10000);
+
+          onAuthStateChanged(auth, user => {
+            if (!settled && user && !user.isAnonymous) {
+              settled = true; clearTimeout(t); resolve(user);
+            }
+          });
+
+          getRedirectResult(auth)
+            .then(r => {
+              if (!settled && r && r.user && !r.user.isAnonymous) {
+                settled = true; clearTimeout(t); resolve(r.user);
+              }
+            })
+            .catch(err => {
+              if (!settled) { settled = true; clearTimeout(t); reject(err); }
+            });
         });
 
-        // Signal B — also surfaces real Firebase errors (e.g. operation-not-allowed)
-        getRedirectResult(auth)
-          .then(r => {
-            if (!settled && r && r.user && !r.user.isAnonymous) {
-              settled = true; clearTimeout(t); resolve(r.user);
-            }
-          })
-          .catch(err => {
-            if (!settled) { settled = true; clearTimeout(t); reject(err); }
-          });
-      });
-
-      if (realUser) { goBack(); }
-      else          { goBack('#autherror=no-result'); }
+        if (realUser) { goBack(); }
+        else          { goBack('#autherror=no-result'); }
+      }
     }
   </script>
 </body>

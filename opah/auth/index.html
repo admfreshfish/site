@@ -156,17 +156,32 @@
       sessionStorage.removeItem(SS_RETURNING);
       setMsg('Verificando conta…');
 
-      // Keep the listener open — the real user arrives on the 2nd event.
-      // Resolve as soon as a non-anonymous user is seen, or after 10 s.
-      const realUser = await new Promise(resolve => {
-        const t = setTimeout(() => resolve(null), 10000);
+      // Race two signals in parallel:
+      //  A) onAuthStateChanged fires with a real (non-anonymous) user
+      //  B) getRedirectResult resolves with the user credential
+      // The first to produce a real user wins.
+      // If getRedirectResult REJECTS, we surface the real Firebase error code.
+      let settled = false;
+      const realUser = await new Promise((resolve, reject) => {
+        const t = setTimeout(() => { if (!settled) { settled=true; resolve(null); } }, 10000);
+
+        // Signal A — keep listener open across multiple events
         onAuthStateChanged(auth, user => {
-          if (user && !user.isAnonymous) {
-            clearTimeout(t);
-            resolve(user);
+          if (!settled && user && !user.isAnonymous) {
+            settled = true; clearTimeout(t); resolve(user);
           }
-          // Anonymous / null events: keep waiting.
         });
+
+        // Signal B — also surfaces real Firebase errors (e.g. operation-not-allowed)
+        getRedirectResult(auth)
+          .then(r => {
+            if (!settled && r && r.user && !r.user.isAnonymous) {
+              settled = true; clearTimeout(t); resolve(r.user);
+            }
+          })
+          .catch(err => {
+            if (!settled) { settled = true; clearTimeout(t); reject(err); }
+          });
       });
 
       if (realUser) { goBack(); }

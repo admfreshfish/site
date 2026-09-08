@@ -705,10 +705,11 @@
       async function doSignIn(provider) {
         $('signin-error').classList.add('hidden');
         if (_isMobileBrowser) {
-          // Navigate to the auth-callback page which is outside Universal Links coverage
+          // Navigate to the auth-callback page (outside Universal Links coverage).
+          // _t= busts the browser cache so the latest auth page is always fetched.
           const type = _providerType(provider);
           const ev   = eventId ? `&event=${encodeURIComponent(eventId)}` : '';
-          window.location.href = `/opah/auth/?provider=${type}${ev}`;
+          window.location.href = `/opah/auth/?provider=${type}${ev}&_t=${Date.now()}`;
           return;
         }
         try {

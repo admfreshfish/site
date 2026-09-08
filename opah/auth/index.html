@@ -36,10 +36,23 @@
     <p id="err" class="err" style="display:none;"></p>
   </div>
 
+  <!-- Non-module fallback: if the ES-module script below never starts, show an
+       error after 15 s so the user can go back manually.                       -->
+  <script>
+    setTimeout(function() {
+      var el = document.getElementById('msg');
+      if (el && el.textContent === 'Autenticando\u2026') {
+        el.textContent = 'Erro ao carregar script. Volte e tente novamente.';
+        document.getElementById('err').style.display = '';
+        document.getElementById('err').textContent   = 'O script do Firebase não carregou (possível problema de rede ou cache).';
+      }
+    }, 15000);
+  </script>
+
   <script type="module">
     import { initializeApp }     from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js';
     import {
-      getAuth, getRedirectResult,
+      getAuth, getRedirectResult, onAuthStateChanged,
       signInWithRedirect,
       GoogleAuthProvider,
       FacebookAuthProvider,
@@ -104,20 +117,7 @@
       document.getElementById('err').style.display = '';
       document.getElementById('err').textContent   = msg;
     }
-
-    function setMsg(msg) {
-      document.getElementById('msg').textContent = msg;
-    }
-
-    /** Wraps a promise with a hard deadline so the page can never hang forever. */
-    function withTimeout(promise, ms, label) {
-      return Promise.race([
-        promise,
-        new Promise((_, reject) =>
-          setTimeout(() => reject({ code: 'timeout', message: `Tempo esgotado (${label}).` }), ms)
-        ),
-      ]);
-    }
+    function setMsg(msg) { document.getElementById('msg').textContent = msg; }
 
     function onErr(e) {
       console.error('auth error', e.code, e.message);
@@ -126,54 +126,61 @@
     }
 
     // ── Main ─────────────────────────────────────────────────────────
-    // We use a sessionStorage flag to distinguish two cases:
-    //   First load  → no flag set  → call signInWithRedirect (no Firebase hang risk)
-    //   Return load → flag is '1'  → call getRedirectResult to pick up the credential
+    // Strategy:
+    //  • First load  → sessionStorage flag absent → signInWithRedirect
+    //  • Return load → flag = '1'               → getRedirectResult
     //
-    // This avoids calling auth.authStateReady() / getRedirectResult on first load,
-    // which can hang indefinitely in certain iOS Safari + Firebase SDK combinations.
+    // We wait for onAuthStateChanged() to fire FIRST.  That callback is Firebase's
+    // own signal that the auth module has finished initialising from storage — so
+    // getRedirectResult / signInWithRedirect are safe to call immediately after.
+    //
+    // A 10-second watchdog ensures the page never hangs even if onAuthStateChanged
+    // never fires (e.g. module failed to load, network issue).
 
     const isReturning = sessionStorage.getItem(SS_RETURNING) === '1';
 
-    if (isReturning) {
-      // ── RETURN from OAuth provider ──────────────────────────────
-      sessionStorage.removeItem(SS_RETURNING);
-      setMsg('Verificando conta…');
+    // Watchdog: if onAuthStateChanged doesn't fire within 10 s, proceed anyway.
+    const watchdog = setTimeout(() => {
+      console.warn('onAuthStateChanged watchdog fired');
+      run(null);
+    }, 10000);
 
-      try {
-        const result = await withTimeout(getRedirectResult(auth), 15000, 'getRedirectResult');
+    const unsubAuth = onAuthStateChanged(auth, user => {
+      clearTimeout(watchdog);
+      unsubAuth();          // only need first event
+      run(user);
+    });
 
-        if (result && result.user) {
-          goBack();
-        } else {
-          // Redirect completed but no user — possible cancel or error
-          goBack('#autherror=no-result');
-        }
-      } catch (e) {
-        onErr(e);
-      }
-
-    } else {
-      // ── FIRST load: initiate the redirect ──────────────────────
-      const p = makeProvider(provider);
-
-      if (!p) {
-        // No provider param — direct navigation to /opah/auth/, just go back
-        goBack();
-        return;
-      }
-
-      setMsg('Redirecionando para ' + provider + '…');
-
-      // Mark that we expect to return from an OAuth redirect
-      sessionStorage.setItem(SS_RETURNING, '1');
-
-      try {
-        await withTimeout(signInWithRedirect(auth, p), 10000, 'signInWithRedirect');
-        // signInWithRedirect navigates away; the line above normally never resolves.
-      } catch (e) {
+    async function run(initialUser) {
+      if (isReturning) {
+        // ── RETURN from OAuth ──────────────────────────────────────
         sessionStorage.removeItem(SS_RETURNING);
-        onErr(e);
+        setMsg('Verificando conta…');
+        try {
+          // Give the SDK an extra tick to settle after onAuthStateChanged
+          await new Promise(r => setTimeout(r, 300));
+          const result = await Promise.race([
+            getRedirectResult(auth),
+            new Promise((_, rej) => setTimeout(() => rej({ code: 'timeout', message: 'Tempo esgotado.' }), 12000)),
+          ]);
+          if (result && result.user) { goBack(); }
+          else                       { goBack('#autherror=no-result'); }
+        } catch (e) { onErr(e); }
+
+      } else {
+        // ── FIRST load: start the redirect ────────────────────────
+        const p = makeProvider(provider);
+        if (!p) { goBack(); return; }
+
+        setMsg('Redirecionando para ' + provider + '…');
+        sessionStorage.setItem(SS_RETURNING, '1');
+        try {
+          await signInWithRedirect(auth, p);
+          // signInWithRedirect navigates away — nothing below runs normally.
+        } catch (e) {
+          sessionStorage.removeItem(SS_RETURNING);
+          onErr(e);
+        }
       }
     }
   </script>

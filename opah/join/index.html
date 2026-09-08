@@ -680,12 +680,27 @@
         el.classList.remove('hidden');
       }
 
+      // On mobile, popups open as a new tab and close before passing the auth
+      // result back → always use redirect on phones/tablets.
+      const _isMobileBrowser = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
       async function doSignIn(provider) {
         $('signin-error').classList.add('hidden');
+        if (_isMobileBrowser) {
+          // Redirect flow: page reloads after auth; getRedirectResult() handles the result.
+          await signInWithRedirect(auth, provider);
+          return;
+        }
         try {
           await signInWithPopup(auth, provider);
         } catch (popupErr) {
-          if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request') {
+          // Popup blocked, cancelled, or closed by user → fall back to redirect
+          const fallbackCodes = [
+            'auth/popup-blocked',
+            'auth/cancelled-popup-request',
+            'auth/popup-closed-by-user',
+          ];
+          if (fallbackCodes.includes(popupErr.code)) {
             await signInWithRedirect(auth, provider);
           } else {
             showSigninError(popupErr.message || 'Erro ao entrar.');

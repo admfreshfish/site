@@ -704,32 +704,33 @@
 
       async function doSignIn(provider) {
         $('signin-error').classList.add('hidden');
-        if (_isMobileBrowser) {
-          // Navigate to the auth-callback page (outside Universal Links coverage).
-          // _t= busts the browser cache so the latest auth page is always fetched.
-          const type = _providerType(provider);
-          const ev   = eventId ? `&event=${encodeURIComponent(eventId)}` : '';
-          window.location.href = `/opah/auth/?provider=${type}${ev}&_t=${Date.now()}`;
-          return;
-        }
+
+        // Try signInWithPopup first on all platforms.
+        // With authDomain = auth.freshfishdigital.com the popup stays entirely on
+        // that subdomain (same-site, no ITP) and closes via postMessage — it never
+        // navigates back to /opah/join, so Universal Links are not triggered.
         try {
           await signInWithPopup(auth, provider);
+          return; // ✓ signed in
         } catch (popupErr) {
-          // Popup blocked, cancelled, or closed by user → fall back to redirect
-          const fallbackCodes = [
+          const redirectCodes = [
             'auth/popup-blocked',
             'auth/cancelled-popup-request',
             'auth/popup-closed-by-user',
           ];
-          if (fallbackCodes.includes(popupErr.code)) {
-            // Desktop fallback also goes through /opah/auth/ to avoid Universal Links
-            const type = _providerType(provider);
-            const ev   = eventId ? `&event=${encodeURIComponent(eventId)}` : '';
-            window.location.href = `/opah/auth/?provider=${type}${ev}`;
-          } else {
+          if (!redirectCodes.includes(popupErr.code)) {
+            // Real error — show it and stop
             showSigninError(popupErr.message || 'Erro ao entrar.');
+            return;
           }
+          // Popup blocked/closed → fall through to redirect approach
         }
+
+        // Fallback: redirect through /opah/auth/ which is outside AASA coverage,
+        // so iOS cannot intercept the return URL as a Universal Link.
+        const type = _providerType(provider);
+        const ev   = eventId ? `&event=${encodeURIComponent(eventId)}` : '';
+        window.location.href = `/opah/auth/?provider=${type}${ev}&_t=${Date.now()}`;
       }
 
       $('btn-google-signin').addEventListener('click', () => doSignIn(new GoogleAuthProvider()));

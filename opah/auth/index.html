@@ -156,16 +156,31 @@
         // ── RETURN from OAuth ──────────────────────────────────────
         sessionStorage.removeItem(SS_RETURNING);
         setMsg('Verificando conta…');
-        try {
-          // Give the SDK an extra tick to settle after onAuthStateChanged
-          await new Promise(r => setTimeout(r, 300));
-          const result = await Promise.race([
-            getRedirectResult(auth),
-            new Promise((_, rej) => setTimeout(() => rej({ code: 'timeout', message: 'Tempo esgotado.' }), 12000)),
-          ]);
-          if (result && result.user) { goBack(); }
-          else                       { goBack('#autherror=no-result'); }
-        } catch (e) { onErr(e); }
+
+        // Firebase already signed the user in before onAuthStateChanged fired.
+        // If initialUser is a real (non-anonymous) user, we're done — no need
+        // to call getRedirectResult (which would return null, it's already consumed).
+        if (initialUser && !initialUser.isAnonymous) {
+          goBack();
+          return;
+        }
+
+        // Fallback: wait for onAuthStateChanged to fire with a real user
+        // (covers the case where onAuthStateChanged watchdog fired with null).
+        const realUser = await Promise.race([
+          new Promise(resolve => {
+            const unsub = onAuthStateChanged(auth, u => {
+              if (u && !u.isAnonymous) { unsub(); resolve(u); }
+            });
+          }),
+          // Also try getRedirectResult in parallel — whichever wins
+          getRedirectResult(auth).then(r => r?.user || null).catch(() => null),
+          // Hard deadline
+          new Promise(resolve => setTimeout(() => resolve(null), 10000)),
+        ]);
+
+        if (realUser) { goBack(); }
+        else          { goBack('#autherror=no-result'); }
 
       } else {
         // ── FIRST load: start the redirect ────────────────────────

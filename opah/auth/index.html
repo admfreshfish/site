@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Opah – Autenticando…</title>
+  <!--
+    This page is intentionally NOT listed in .well-known/apple-app-site-association.
+    It exists solely as an OAuth callback intermediary so that the final redirect
+    back to /opah/join does not trigger iOS Universal Links (which would open the
+    native app instead of completing the web sign-in flow).
+
+    Flow:
+      /opah/join  ──(navigate)──►  /opah/auth/?event=XXX&provider=YYY
+        └─ signInWithRedirect ──► Facebook / Google / Apple
+             └─ return to /opah/auth/ (no Universal Link here)
+                  └─ getRedirectResult → window.location.replace('/opah/join?event=XXX')
+                       └─ programmatic JS navigation → no Universal Link trigger ✓
+  -->
+  <style>
+    body { margin: 0; display: flex; align-items: center; justify-content: center;
+           min-height: 100vh; background: #111; color: #eee;
+           font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 15px; }
+    .spinner { width: 36px; height: 36px; border: 3px solid #444;
+               border-top-color: #f5a623; border-radius: 50%;
+               animation: spin .8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .wrap { text-align: center; padding: 24px; }
+    .err  { color: #ff6b6b; margin-top: 12px; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="spinner"></div>
+    <p id="msg">Autenticando…</p>
+    <p id="err" class="err" style="display:none;"></p>
+  </div>
+
+  <script type="module">
+    import { initializeApp }     from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js';
+    import {
+      getAuth, getRedirectResult,
+      signInWithRedirect,
+      GoogleAuthProvider,
+      FacebookAuthProvider,
+      OAuthProvider,
+    } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js';
+
+    const app  = initializeApp({
+      apiKey:            'AIzaSyDUaVe5R83dkPietk9z08klk8AOFikFo-8',
+      authDomain:        'opah-a618d.firebaseapp.com',
+      projectId:         'opah-a618d',
+      storageBucket:     'opah-a618d.firebasestorage.app',
+      messagingSenderId: '963795818634',
+      appId:             '1:963795818634:web:98545eb3ba6c907dd6f573',
+    });
+    const auth = getAuth(app);
+
+    const SS_EVENT    = 'opah_auth_event';
+    const SS_PROVIDER = 'opah_auth_provider';
+
+    const params   = new URLSearchParams(location.search);
+    const eventId  = params.get('event')    || sessionStorage.getItem(SS_EVENT)    || '';
+    const provider = params.get('provider') || sessionStorage.getItem(SS_PROVIDER) || '';
+
+    // Persist across redirect
+    if (eventId)  sessionStorage.setItem(SS_EVENT,    eventId);
+    if (provider) sessionStorage.setItem(SS_PROVIDER, provider);
+
+    function joinUrl() {
+      const ev = sessionStorage.getItem(SS_EVENT) || eventId;
+      return ev ? `/opah/join?event=${encodeURIComponent(ev)}` : '/opah/join';
+    }
+
+    function makeProvider(type) {
+      if (type === 'google') {
+        return new GoogleAuthProvider();
+      }
+      if (type === 'facebook') {
+        const p = new FacebookAuthProvider();
+        p.addScope('email');
+        return p;
+      }
+      if (type === 'apple') {
+        const p = new OAuthProvider('apple.com');
+        p.addScope('email');
+        p.addScope('name');
+        return p;
+      }
+      return null;
+    }
+
+    function goBack(hash) {
+      sessionStorage.removeItem(SS_EVENT);
+      sessionStorage.removeItem(SS_PROVIDER);
+      // Programmatic JS navigation — does NOT trigger iOS Universal Links ✓
+      window.location.replace(joinUrl() + (hash || ''));
+    }
+
+    // ── Main ─────────────────────────────────────────────────────────
+    try {
+      const result = await getRedirectResult(auth);
+
+      if (result && result.user) {
+        // Auth succeeded — go back to the join page (JS replace, not a link tap)
+        goBack();
+        return;
+      }
+
+      // No redirect result yet → need to start the redirect
+      const p = makeProvider(provider);
+      if (!p) {
+        // No provider stored — just go back (e.g. direct navigation to /opah/auth/)
+        goBack();
+        return;
+      }
+
+      document.getElementById('msg').textContent = 'Redirecionando…';
+      await signInWithRedirect(auth, p);
+
+    } catch (e) {
+      console.error('auth callback error', e.code, e.message);
+      document.getElementById('err').style.display = '';
+      document.getElementById('err').textContent   = e.message || 'Erro de autenticação.';
+      // Give the user 3 s to read the error, then go back
+      setTimeout(() => goBack('#autherror=' + encodeURIComponent(e.code || 'unknown')), 3000);
+    }
+  </script>
+</body>
+</html>

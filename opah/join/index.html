@@ -667,6 +667,13 @@
 
       // ── Auth ─────────────────────────────────────────────────────
       async function handleRedirectResult() {
+        // Show any error forwarded by the /opah/auth/ callback page
+        const hash = location.hash;
+        if (hash.startsWith('#autherror=')) {
+          const code = decodeURIComponent(hash.slice('#autherror='.length));
+          showSigninError(`Erro ao entrar (${code}). Tente novamente.`);
+          history.replaceState(null, '', location.pathname + location.search);
+        }
         try {
           await getRedirectResult(auth);
         } catch (e) {
@@ -681,14 +688,27 @@
       }
 
       // On mobile, popups open as a new tab and close before passing the auth
-      // result back → always use redirect on phones/tablets.
+      // result back. We also can't call signInWithRedirect directly here because
+      // the join page path (/opah/join*) is listed in apple-app-site-association —
+      // iOS would intercept the final OAuth return and open the native Opah app.
+      // Solution: route through /opah/auth/ which is NOT in the AASA, then that
+      // page does a programmatic window.location.replace back here (JS navigation
+      // does NOT trigger Universal Links).
       const _isMobileBrowser = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+      function _providerType(provider) {
+        if (provider instanceof GoogleAuthProvider)  return 'google';
+        if (provider instanceof FacebookAuthProvider) return 'facebook';
+        return 'apple';
+      }
 
       async function doSignIn(provider) {
         $('signin-error').classList.add('hidden');
         if (_isMobileBrowser) {
-          // Redirect flow: page reloads after auth; getRedirectResult() handles the result.
-          await signInWithRedirect(auth, provider);
+          // Navigate to the auth-callback page which is outside Universal Links coverage
+          const type = _providerType(provider);
+          const ev   = eventId ? `&event=${encodeURIComponent(eventId)}` : '';
+          window.location.href = `/opah/auth/?provider=${type}${ev}`;
           return;
         }
         try {
@@ -701,7 +721,10 @@
             'auth/popup-closed-by-user',
           ];
           if (fallbackCodes.includes(popupErr.code)) {
-            await signInWithRedirect(auth, provider);
+            // Desktop fallback also goes through /opah/auth/ to avoid Universal Links
+            const type = _providerType(provider);
+            const ev   = eventId ? `&event=${encodeURIComponent(eventId)}` : '';
+            window.location.href = `/opah/auth/?provider=${type}${ev}`;
           } else {
             showSigninError(popupErr.message || 'Erro ao entrar.');
           }

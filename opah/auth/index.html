@@ -97,9 +97,29 @@
       window.location.replace(joinUrl() + (hash || ''));
     }
 
+    // ── Helpers ──────────────────────────────────────────────────────
+    function showErr(msg) {
+      document.getElementById('err').style.display = '';
+      document.getElementById('err').textContent   = msg;
+    }
+
+    /** getRedirectResult with a hard timeout so the page never hangs forever. */
+    function getRedirectResultSafe(auth, ms = 12000) {
+      return Promise.race([
+        getRedirectResult(auth),
+        new Promise((_, reject) =>
+          setTimeout(() => reject({ code: 'timeout', message: 'Tempo esgotado.' }), ms)
+        ),
+      ]);
+    }
+
     // ── Main ─────────────────────────────────────────────────────────
     try {
-      const result = await getRedirectResult(auth);
+      // Wait for the Firebase auth module to finish loading cached state
+      // (avoids getRedirectResult hanging when called too early).
+      await auth.authStateReady();
+
+      const result = await getRedirectResultSafe(auth);
 
       if (result && result.user) {
         // Auth succeeded — go back to the join page (JS replace, not a link tap)
@@ -107,23 +127,29 @@
         return;
       }
 
-      // No redirect result yet → need to start the redirect
+      // No redirect result → initiate the redirect
       const p = makeProvider(provider);
       if (!p) {
-        // No provider stored — just go back (e.g. direct navigation to /opah/auth/)
+        goBack();   // No provider stored — direct navigation to /opah/auth/
+        return;
+      }
+
+      document.getElementById('msg').textContent = 'Redirecionando para ' + provider + '…';
+      await signInWithRedirect(auth, p);
+      // signInWithRedirect navigates away — code below never runs normally.
+
+    } catch (e) {
+      console.error('auth callback error', e.code, e.message);
+
+      // If it timed out while no provider is stored → just go back quietly
+      if (e.code === 'timeout' && !provider) {
         goBack();
         return;
       }
 
-      document.getElementById('msg').textContent = 'Redirecionando…';
-      await signInWithRedirect(auth, p);
-
-    } catch (e) {
-      console.error('auth callback error', e.code, e.message);
-      document.getElementById('err').style.display = '';
-      document.getElementById('err').textContent   = e.message || 'Erro de autenticação.';
-      // Give the user 3 s to read the error, then go back
-      setTimeout(() => goBack('#autherror=' + encodeURIComponent(e.code || 'unknown')), 3000);
+      showErr((e.message || 'Erro de autenticação.') + (e.code ? ` (${e.code})` : ''));
+      // Give the user 4 s to read the error, then go back
+      setTimeout(() => goBack('#autherror=' + encodeURIComponent(e.code || 'unknown')), 4000);
     }
   </script>
 </body>

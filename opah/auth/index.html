@@ -127,76 +127,50 @@
 
     // ── Main ─────────────────────────────────────────────────────────
     // Strategy:
-    //  • First load  → sessionStorage flag absent → signInWithRedirect
-    //  • Return load → flag = '1'               → getRedirectResult
+    //  • First load  → sessionStorage flag absent → signInWithRedirect (navigate away)
+    //  • Return load → flag = '1'               → wait for real user in onAuthStateChanged
     //
-    // We wait for onAuthStateChanged() to fire FIRST.  That callback is Firebase's
-    // own signal that the auth module has finished initialising from storage — so
-    // getRedirectResult / signInWithRedirect are safe to call immediately after.
-    //
-    // A 10-second watchdog ensures the page never hangs even if onAuthStateChanged
-    // never fires (e.g. module failed to load, network issue).
+    // On the RETURN load, Firebase fires onAuthStateChanged TWICE:
+    //   1st event → anonymous user  (restored from localStorage/IndexedDB old session)
+    //   2nd event → real OAuth user (after Firebase processes the pending redirect)
+    // We must NOT unsubscribe after the 1st event — keep listening until a
+    // non-anonymous user arrives or the 10-second timeout fires.
 
     const isReturning = sessionStorage.getItem(SS_RETURNING) === '1';
 
-    // Watchdog: if onAuthStateChanged doesn't fire within 10 s, proceed anyway.
-    const watchdog = setTimeout(() => {
-      console.warn('onAuthStateChanged watchdog fired');
-      run(null);
-    }, 10000);
-
-    const unsubAuth = onAuthStateChanged(auth, user => {
-      clearTimeout(watchdog);
-      unsubAuth();          // only need first event
-      run(user);
-    });
-
-    async function run(initialUser) {
-      if (isReturning) {
-        // ── RETURN from OAuth ──────────────────────────────────────
-        sessionStorage.removeItem(SS_RETURNING);
-        setMsg('Verificando conta…');
-
-        // Firebase already signed the user in before onAuthStateChanged fired.
-        // If initialUser is a real (non-anonymous) user, we're done — no need
-        // to call getRedirectResult (which would return null, it's already consumed).
-        if (initialUser && !initialUser.isAnonymous) {
-          goBack();
-          return;
-        }
-
-        // Fallback: wait for onAuthStateChanged to fire with a real user
-        // (covers the case where onAuthStateChanged watchdog fired with null).
-        const realUser = await Promise.race([
-          new Promise(resolve => {
-            const unsub = onAuthStateChanged(auth, u => {
-              if (u && !u.isAnonymous) { unsub(); resolve(u); }
-            });
-          }),
-          // Also try getRedirectResult in parallel — whichever wins
-          getRedirectResult(auth).then(r => r?.user || null).catch(() => null),
-          // Hard deadline
-          new Promise(resolve => setTimeout(() => resolve(null), 10000)),
-        ]);
-
-        if (realUser) { goBack(); }
-        else          { goBack('#autherror=no-result'); }
-
-      } else {
-        // ── FIRST load: start the redirect ────────────────────────
-        const p = makeProvider(provider);
-        if (!p) { goBack(); return; }
-
+    if (!isReturning) {
+      // ── FIRST LOAD ────────────────────────────────────────────────
+      const p = makeProvider(provider);
+      if (!p) { goBack(); }
+      else {
         setMsg('Redirecionando para ' + provider + '…');
         sessionStorage.setItem(SS_RETURNING, '1');
-        try {
-          await signInWithRedirect(auth, p);
-          // signInWithRedirect navigates away — nothing below runs normally.
-        } catch (e) {
+        signInWithRedirect(auth, p).catch(e => {
           sessionStorage.removeItem(SS_RETURNING);
           onErr(e);
-        }
+        });
       }
+
+    } else {
+      // ── RETURN LOAD ───────────────────────────────────────────────
+      sessionStorage.removeItem(SS_RETURNING);
+      setMsg('Verificando conta…');
+
+      // Keep the listener open — the real user arrives on the 2nd event.
+      // Resolve as soon as a non-anonymous user is seen, or after 10 s.
+      const realUser = await new Promise(resolve => {
+        const t = setTimeout(() => resolve(null), 10000);
+        onAuthStateChanged(auth, user => {
+          if (user && !user.isAnonymous) {
+            clearTimeout(t);
+            resolve(user);
+          }
+          // Anonymous / null events: keep waiting.
+        });
+      });
+
+      if (realUser) { goBack(); }
+      else          { goBack('#autherror=no-result'); }
     }
   </script>
 </body>

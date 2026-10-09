@@ -535,7 +535,11 @@
         var eventId = params.get('event') || params.get('id') || '';
 
         var APP_STORE_URL  = 'itms-apps://apps.apple.com/br/app/opah/id6761278869';
-        var PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.freshfishdigital.opah';
+        // Android: embed event id as Play Store referrer so the app auto-joins on first launch.
+        var PLAY_STORE_BASE = 'https://play.google.com/store/apps/details?id=com.freshfishdigital.opah';
+        var PLAY_STORE_URL  = eventId
+          ? PLAY_STORE_BASE + '&referrer=' + encodeURIComponent('event=' + eventId)
+          : PLAY_STORE_BASE;
 
         // Set hrefs on full and mini links
         document.getElementById('ios-store').href          = APP_STORE_URL;
@@ -558,6 +562,26 @@
         if (isIOS) document.getElementById('btn-apple-signin').classList.remove('hidden');
         // Summary download button — platform-specific
         document.getElementById('summary-store-link').href = isIOS ? APP_STORE_URL : PLAY_STORE_URL;
+
+        // iOS: copy the join URL to clipboard before going to the App Store so
+        // the app can read it on first launch (deferred deep link / clipboard trick).
+        // The app checks the clipboard ONCE on first install and clears it afterward.
+        if (isIOS && eventId) {
+          var joinUrl = 'https://freshfishdigital.com/opah/join?event=' + encodeURIComponent(eventId);
+          document.getElementById('ios-store').addEventListener('click', function () {
+            try { navigator.clipboard.writeText(joinUrl); } catch (_) {
+              // Clipboard API unavailable (rare in Safari) — silently skip.
+            }
+          }, { once: true });
+          document.getElementById('ios-store-mini').addEventListener('click', function () {
+            try { navigator.clipboard.writeText(joinUrl); } catch (_) {}
+          }, { once: true });
+          document.getElementById('summary-store-link').addEventListener('click', function () {
+            if (document.getElementById('summary-store-link').href === APP_STORE_URL) {
+              try { navigator.clipboard.writeText(joinUrl); } catch (_) {}
+            }
+          }, { once: true });
+        }
 
         if ((isIOS || isAndroid) && eventId) {
           var deepLink = 'opah://join?event=' + encodeURIComponent(eventId);
